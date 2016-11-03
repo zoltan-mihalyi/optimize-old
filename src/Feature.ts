@@ -1,12 +1,12 @@
 import Scope = require("./Scope");
 import {isBlockStatementLike} from "./Util";
-type Callback<E extends Expression,S> = (e:ASTPoint<E>, scope:Scope<S>)=>void;
+type Callback<E extends Expression,S> = (e: ASTPoint<E>, scope: Scope<S>)=>void;
 
 export class ASTPoint<T extends Expression> {
-    constructor(public expression:T, private parent?:BlockStatement) {
+    constructor(public expression: T, private parent?: BlockStatement) {
     }
 
-    remove():void {
+    remove(): void {
         if (this.parent) {
             this.parent.body.splice(this.parent.body.indexOf(this.expression), 1);
         } else {
@@ -16,10 +16,10 @@ export class ASTPoint<T extends Expression> {
 }
 
 class FeatureStore<T> {
-    private store:{[idx:string]:Callback<Expression,T>[]} = Object.create(null);
+    private store: {[idx: string]: Callback<Expression,T>[]} = Object.create(null);
 
-    callAll(e:Expression, parent:Expression, scope:Scope<any>):void {
-        var callbacks:Callback<Expression,T>[] = this.store[e.type];
+    callAll(e: Expression, parent: Expression, scope: Scope<any>): void {
+        var callbacks: Callback<Expression,T>[] = this.store[e.type];
         if (!callbacks) {
             return;
         }
@@ -29,32 +29,39 @@ class FeatureStore<T> {
         }
     }
 
-    onFunctionDeclaration(callback:Callback<FunctionDeclaration,T>) {
+    onFunctionDeclaration(callback: Callback<FunctionDeclaration,T>) {
         this.on('FunctionDeclaration', callback);
     }
 
-    onIdentifier(callback:Callback<Identifier,T>) {
+    onIdentifier(callback: Callback<Identifier,T>) {
         this.on('Identifier', callback);
     }
 
-    onExpressionStatement(callback:Callback<ExpressionStatement,T>) {
+    onExpressionStatement(callback: Callback<ExpressionStatement,T>) {
         this.on('ExpressionStatement', callback);
     }
 
-    private on(type:string, callback:Callback<Expression,T>) {
+    private on(type: string, callback: Callback<Expression,T>) {
         if (!this.store[type]) {
             this.store[type] = [callback];
         } else {
             this.store[type].push(callback);
         }
     }
-
 }
 
+export class Phase<T> {
+    public before: FeatureStore<T> = new FeatureStore<T>();
+    public after: FeatureStore<T> = new FeatureStore<T>();
+}
 
 export class Feature<T> {
+    phases: Phase<T>[] = [];
 
-    public before:FeatureStore<T> = new FeatureStore<T>();
-    public after:FeatureStore<T> = new FeatureStore<T>();
-
+    addPhase(): Phase<T> {
+        var phase = new Phase();
+        this.phases.push(phase);
+        return phase;
+    }
 }
+

@@ -3,7 +3,7 @@ import {isDirective, isLiteral, isBinaryExpression, isIdentifier} from "../Util"
 
 var feature = new Feature();
 
-feature.after.onExpressionStatement((a:ASTPoint<ExpressionStatement>) => {
+feature.addPhase().after.onExpressionStatement((a:ASTPoint<ExpressionStatement>) => {
     var statement = a.expression;
     var expression = statement.expression;
 

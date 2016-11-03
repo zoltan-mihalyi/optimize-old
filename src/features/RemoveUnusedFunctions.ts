@@ -8,21 +8,21 @@ interface Counter {
 
 var feature:Feature<Counter> = new Feature<Counter>();
 
-feature.before.onFunctionDeclaration((fd:ASTPoint<FunctionDeclaration>, scope:Scope<Counter>) => {
+feature.addPhase().before.onFunctionDeclaration((fd:ASTPoint<FunctionDeclaration>, scope:Scope<Counter>) => {
     scope.save(fd.expression.id, {
         functionDeclaration: fd.expression,
         usages: 0
     }, false);
 });
 
-feature.after.onIdentifier((id:ASTPoint<Identifier>, scope:Scope<Counter>) => {
+feature.addPhase().before.onIdentifier((id:ASTPoint<Identifier>, scope:Scope<Counter>) => {
     var saved = scope.get(id.expression);
-    if (saved && !scope.inside(saved.functionDeclaration)) {
+    if (saved && !scope.inside(saved.functionDeclaration)) { //todo inside not there
         saved.usages++;
     }
 });
 
-feature.after.onFunctionDeclaration((fd:ASTPoint<FunctionDeclaration>, scope:Scope<Counter>) => {
+feature.addPhase().before.onFunctionDeclaration((fd:ASTPoint<FunctionDeclaration>, scope:Scope<Counter>) => {
     var saved = scope.get(fd.expression.id);
     if (saved.usages === 1) {
         fd.remove();

@@ -1,2 +1,12 @@
-(function fun3() {
+function used() {
+}
+
+used();
+
+usedBeforeDeclaration();
+
+function usedBeforeDeclaration(){
+}
+
+(function immediatelyInvoked() {
 })();

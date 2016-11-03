@@ -1,10 +1,19 @@
-function fun() {
-    return 1;
+function unused() {
 }
 
-function fun2() {
-    fun2();
+function used() {
 }
 
-(function fun3() {
+used();
+
+usedBeforeDeclaration();
+
+function usedBeforeDeclaration(){
+}
+
+function recursive() {
+    recursive();
+}
+
+(function immediatelyInvoked() {
 })();
