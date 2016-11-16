@@ -1,31 +1,118 @@
-export function isLiteral(e:Expression):e is Literal {
+export function isLiteral(e: Expression): e is Literal {
     return e.type === 'Literal';
 }
 
-export function isDirective(e:Expression):e is Directive {
+export function isDirective(e: Expression): e is Directive {
     return typeof (e as any).directive === 'string';
 }
 
-export function isIdentifier(e:Expression):e is Identifier {
+export function isIdentifier(e: Expression): e is Identifier {
     return e.type === 'Identifier';
 }
 
-export function isBlockStatement(e:Expression):e is BlockStatement {
+export function isBlockStatement(e: Expression): e is BlockStatement {
     return e.type === 'BlockStatement';
 }
 
-export function isBlockStatementLike(e:Expression):e is BlockStatement {
+export function isBlockStatementLike(e: Expression): e is BlockStatement {
     return isBlockStatement(e) || isProgram(e);
 }
 
-export function isFunctionDeclaration(e:Expression):e is FunctionDeclaration {
+export function isFunctionDeclaration(e: Expression): e is FunctionDeclaration {
     return e.type === 'FunctionDeclaration';
 }
 
-export function isBinaryExpression(e:Expression):e is BinaryExpression {
+export function isBinaryExpression(e: Expression): e is BinaryExpression {
     return e.type === 'BinaryExpression';
 }
 
-export function isProgram(e:Expression):e is Program {
+export function isProgram(e: Expression): e is Program {
     return e.type === 'Program';
+}
+
+export function isReturnStatement(e: Expression): e is ReturnStatement {
+    return e.type === 'ReturnStatement';
+}
+
+export function returnStatement(argument?: Expression): ReturnStatement {
+    return {
+        type: 'ReturnStatement',
+        argument: argument
+    };
+}
+
+export function literal(value: number): Literal {
+    return {
+        type: 'Literal',
+        value: value,
+        raw: value + ''
+    };
+}
+
+export function whileStatement(test: Expression, body: BlockStatement): WhileStatement {
+    return {
+        type: 'WhileStatement',
+        test: test,
+        body: body
+    };
+}
+
+export function identifier(name: string): Identifier {
+    return {
+        type: 'Identifier',
+        name: name
+    };
+}
+
+export function labeled(name: string, body: Expression): LabeledStatement {
+    return {
+        type: 'LabeledStatement',
+        body: body,
+        label: identifier(name)
+    };
+}
+
+export function block(body: Expression[]): BlockStatement {
+    return {
+        type: 'BlockStatement',
+        body: body
+    };
+}
+
+export function continueStatement(name: string): ContinueStatement {
+    return {
+        type: 'ContinueStatement',
+        label: identifier(name)
+    };
+}
+
+export function declarator(name:string, init?:Expression): VariableDeclarator {
+    return {
+        type: 'VariableDeclarator',
+        id: identifier(name),
+        init: init
+    };
+}
+
+export function declaration(declarations:VariableDeclarator[]): VariableDeclaration {
+    return {
+        type: 'VariableDeclaration',
+        kind: 'var',
+        declarations: declarations
+    };
+}
+
+export function assignment(left:Expression, right:Expression): ExpressionStatement{
+    var assignment: AssignmentExpression = {
+        type: 'AssignmentExpression',
+        operator: '=',
+        left: left,
+        right: right
+    };
+
+
+    return {
+        type: 'ExpressionStatement',
+        expression: assignment
+    };
 }

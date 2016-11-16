@@ -3,14 +3,24 @@ import {isBlockStatementLike} from "./Util";
 type Callback<E extends Expression,S> = (e: ASTPoint<E>, scope: Scope<S>)=>void;
 
 export class ASTPoint<T extends Expression> {
-    constructor(public expression: T, private parent?: BlockStatement) {
+    constructor(public expression: T, public parent?: ASTPoint<any>) {
     }
 
     remove(): void {
-        if (this.parent) {
-            this.parent.body.splice(this.parent.body.indexOf(this.expression), 1);
-        } else {
+        this.replaceWith([]);
+    }
+
+    replaceWith(expressions: Expression[]): void {
+        if (!this.parent) {
             throw new Error('Parent does not exist.');
+        }
+
+        var parentExpression = this.parent.expression;
+        if (parentExpression && isBlockStatementLike(parentExpression)) {
+            var index = parentExpression.body.indexOf(this.expression);
+            parentExpression.body.splice.apply(parentExpression.body, [index, 1, ...expressions]);
+        } else {
+            throw new Error('Parent is not block');
         }
     }
 }
@@ -18,19 +28,22 @@ export class ASTPoint<T extends Expression> {
 class FeatureStore<T> {
     private store: {[idx: string]: Callback<Expression,T>[]} = Object.create(null);
 
-    callAll(e: Expression, parent: Expression, scope: Scope<any>): void {
+    callAll(e: Expression, astPoint: ASTPoint<any>, scope: Scope<any>): void {
         var callbacks: Callback<Expression,T>[] = this.store[e.type];
-        if (!callbacks) {
-            return;
-        }
-        for (var i = 0; i < callbacks.length; i++) {
-            var callback = callbacks[i];
-            callback(new ASTPoint(e, isBlockStatementLike(parent) ? parent : null), scope);
+        if (callbacks) {
+            for (var i = 0; i < callbacks.length; i++) {
+                var callback = callbacks[i];
+                callback(astPoint, scope);
+            }
         }
     }
 
     onFunctionDeclaration(callback: Callback<FunctionDeclaration,T>) {
         this.on('FunctionDeclaration', callback);
+    }
+
+    onCallExpression(callback: Callback<CallExpression,T>) {
+        this.on('CallExpression', callback);
     }
 
     onIdentifier(callback: Callback<Identifier,T>) {

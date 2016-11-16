@@ -1,11 +1,12 @@
 import recast = require('recast');
 import removeExpressionStatements = require('./features/RemoveExpressionStatements');
+import reduceTailRecursion = require('./features/ReduceTailRecursion');
 import removeUnusedFunctions = require('./features/RemoveUnusedFunctions');
-import {Feature, Phase} from "./Feature";
+import {Feature, Phase, ASTPoint} from "./Feature";
 import {isBlockStatementLike} from "./Util";
 import Scope = require("./Scope");
 
-function walk(expression: any, parent: Expression, scope: Scope<any>, phase: Phase<any>, scopeMap: Map<Expression,Scope<any>>) {
+function walk(expression: any, parent: ASTPoint<any>, scope: Scope<any>, phase: Phase<any>, scopeMap: Map<Expression,Scope<any>>) {
     if (typeof expression !== 'object' || expression === null) {
         return;
     }
@@ -16,12 +17,13 @@ function walk(expression: any, parent: Expression, scope: Scope<any>, phase: Pha
             if (scopeMap.has(expression)) {
                 scope = scopeMap.get(expression);
             } else {
-                scope = new Scope<any>(parent, scope);
+                scope = new Scope<any>(parent ? parent.expression : null, scope);
                 scopeMap.set(expression, scope);
             }
         }
 
-        phase.before.callAll(expression, parent, scope);
+        var astPoint = new ASTPoint(expression, parent);
+        phase.before.callAll(expression, astPoint, scope);
 
         for (let i in expression) {
             if (expression.hasOwnProperty(i) && i !== 'loc' && i !== 'original') {
@@ -30,7 +32,7 @@ function walk(expression: any, parent: Expression, scope: Scope<any>, phase: Pha
         }
 
         if (isExpression) {
-            phase.after.callAll(expression, parent, scope);
+            phase.after.callAll(expression, astPoint, scope);
         }
     } else {
         for (var i = 0; i < expression.length; i++) {
@@ -41,11 +43,11 @@ function walk(expression: any, parent: Expression, scope: Scope<any>, phase: Pha
     }
 
     function walkInner(expression: any, property: string|number) {
-        walk(expression[property], isExpression ? expression : parent, scope, phase, scopeMap);
+        walk(expression[property], isExpression ? astPoint : parent, scope, phase, scopeMap);
     }
 }
 
-var features: Feature<any>[] = [removeExpressionStatements, removeUnusedFunctions];
+var features: Feature<any>[] = [removeExpressionStatements, removeUnusedFunctions, reduceTailRecursion];
 
 function walkFeature(feature: Feature<any>, ast: any) {
 

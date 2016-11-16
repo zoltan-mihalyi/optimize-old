@@ -87,4 +87,21 @@ interface Directive extends Expression {
     expression:Expression;
 }
 
+interface WhileStatement extends Expression {
+    test:Expression;
+    body:BlockStatement;
+}
+
+interface LabeledStatement extends Expression {
+    label:Identifier;
+    body:Expression;
+}
+
+interface ContinueStatement extends Expression {
+    label:Identifier;
+}
+
+interface ArrayExpression extends Expression {
+    elements:Expression[];
+}
 
