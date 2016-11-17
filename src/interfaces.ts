@@ -57,12 +57,18 @@ interface ExpressionStatement extends Expression {
 
 interface VariableDeclaration extends Expression {
     declarations:VariableDeclarator[];
-    kind:'var'|'const';
+    kind:'var'|'const'|'let';
 }
 
 interface VariableDeclarator extends Expression {
     id:Identifier;
     init:Expression;
+}
+
+interface UpdateExpression extends Expression {
+    argument:Expression;
+    operator:string;
+    prefix:boolean;
 }
 
 interface CallExpression extends Expression {
@@ -105,3 +111,8 @@ interface ArrayExpression extends Expression {
     elements:Expression[];
 }
 
+interface ForInStatement extends Expression {
+    left:Expression;
+    right:Expression;
+    body:BlockStatement;
+}

@@ -31,6 +31,18 @@ class FeatureStore<T> {
         this.on('ExpressionStatement', callback);
     }
 
+    onVariableDeclarator(callback:Callback<VariableDeclarator,T>) {
+        this.on('VariableDeclarator', callback);
+    }
+
+    onAssignmentExpression(callback:Callback<AssignmentExpression,T>) {
+        this.on('AssignmentExpression', callback);
+    }
+
+    onUpdateExpression(callback:Callback<UpdateExpression,T>) {
+        this.on('UpdateExpression', callback);
+    }
+
     private on(type:string, callback:Callback<Expression,T>) {
         if (!this.store[type]) {
             this.store[type] = [callback];

@@ -2,6 +2,7 @@ import recast = require('recast');
 import removeExpressionStatements = require('./features/RemoveExpressionStatements');
 import reduceTailRecursion = require('./features/ReduceTailRecursion');
 import removeUnusedFunctions = require('./features/RemoveUnusedFunctions');
+import inlineExpression = require('./features/InlineExpression');
 import {Feature, Phase} from "./Feature";
 import Scope = require("./Scope");
 import AstNode = require("./AstNode");
@@ -24,7 +25,7 @@ class Walker {
                     continue;
                 }
                 if (typeof sub.type === 'string') {
-                    this.walkInner(new AstNode(sub, astNode, sub, this.scopeMap, i), phase);
+                    this.walkInner(new AstNode(sub, astNode, expression, this.scopeMap, i), phase);
                 } else if (typeof sub.length === 'number') {
                     for (var j = 0; j < sub.length; j++) {
                         var obj = sub[j];
@@ -43,7 +44,7 @@ class Walker {
     }
 }
 
-var features:Feature<any>[] = [removeExpressionStatements, removeUnusedFunctions, reduceTailRecursion];
+var features:Feature<any>[] = [removeExpressionStatements, removeUnusedFunctions, reduceTailRecursion, inlineExpression];
 
 function walkFeature(feature:Feature<any>, expression:Expression) {
     var walker = new Walker();
