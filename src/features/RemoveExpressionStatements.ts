@@ -1,9 +1,10 @@
-import {Feature, ASTPoint} from "../Feature";
+import {Feature} from "../Feature";
 import {isDirective, isLiteral, isBinaryExpression, isIdentifier} from "../Util";
+import AstNode = require("../AstNode");
 
 var feature = new Feature();
 
-feature.addPhase().after.onExpressionStatement((a:ASTPoint<ExpressionStatement>) => {
+feature.addPhase().after.onExpressionStatement((a:AstNode<ExpressionStatement, any>) => {
     var statement = a.expression;
     var expression = statement.expression;
 

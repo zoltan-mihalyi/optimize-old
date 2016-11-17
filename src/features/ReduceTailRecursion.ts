@@ -1,4 +1,4 @@
-import {Feature, ASTPoint} from "../Feature";
+import {Feature} from "../Feature";
 import {
     isIdentifier,
     isReturnStatement,
@@ -14,19 +14,20 @@ import {
     assignment
 } from "../Util";
 import Scope = require("../Scope");
+import AstNode = require("../AstNode");
 
-var feature: Feature<any> = new Feature<any>();
+var feature:Feature<any> = new Feature<any>();
 
-feature.addPhase().before.onFunctionDeclaration((fd: ASTPoint<FunctionDeclaration>, scope: Scope<FunctionDeclaration>) => {
-    scope.save(fd.expression.id, fd.expression, false);
+feature.addPhase().before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, FunctionDeclaration>) => {
+    node.scope.save(node.expression.id, node.expression, false);
 });
 
-feature.addPhase().before.onCallExpression((call: ASTPoint<CallExpression>, scope: Scope<FunctionDeclaration>) => {
-    var callee = call.expression.callee;
+feature.addPhase().before.onCallExpression((node:AstNode<CallExpression, FunctionDeclaration>) => {
+    var callee = node.expression.callee;
 
-    if (isReturnStatement(call.parent.expression) && isIdentifier(callee)) {
-        var fd = scope.get(callee);
-        if (fd && scope.isCurrent(fd)) {
+    if (isReturnStatement(node.parent.expression) && isIdentifier(callee)) {
+        var fd = node.scope.get(callee);
+        if (fd && node.scope.isCurrent(fd)) {
 
             fd.body.body.push(returnStatement());
 
@@ -36,16 +37,15 @@ feature.addPhase().before.onCallExpression((call: ASTPoint<CallExpression>, scop
                 )
             ]);
 
-
-            call.parent.replaceWith([...swapVars(fd.params, call.expression.arguments), continueStatement('x')]);
+            node.parent.replaceWith([...swapVars(fd.params, node.expression.arguments), continueStatement('x')]);
         }
     }
 });
 
-function swapVars(vars: Identifier[], newValues: Expression[]): Expression[] {
-    var result: Expression[] = [];
+function swapVars(vars:Identifier[], newValues:Expression[]):Expression[] {
+    var result:Expression[] = [];
     if (vars.length) {
-        var declarations: VariableDeclarator[] = [];
+        var declarations:VariableDeclarator[] = [];
         for (var i = 0; i < vars.length; i++) {
             var param = vars[i];
             declarations.push(declarator('new_' + param.name, newValues[i]));

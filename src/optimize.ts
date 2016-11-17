@@ -2,65 +2,59 @@ import recast = require('recast');
 import removeExpressionStatements = require('./features/RemoveExpressionStatements');
 import reduceTailRecursion = require('./features/ReduceTailRecursion');
 import removeUnusedFunctions = require('./features/RemoveUnusedFunctions');
-import {Feature, Phase, ASTPoint} from "./Feature";
-import {isBlockStatementLike} from "./Util";
+import {Feature, Phase} from "./Feature";
 import Scope = require("./Scope");
+import AstNode = require("./AstNode");
 
-function walk(expression: any, parent: ASTPoint<any>, scope: Scope<any>, phase: Phase<any>, scopeMap: Map<Expression,Scope<any>>) {
-    if (typeof expression !== 'object' || expression === null) {
-        return;
+class Walker {
+    private scopeMap = new Map<Expression,Scope<any>>();
+
+    walk(expression:Expression, phase:Phase<any>) {
+        this.walkInner(new AstNode(expression, null, null, this.scopeMap), phase);
     }
-    var isExpression = typeof expression.type === 'string';
 
-    if (isExpression) {
-        if (isBlockStatementLike(expression)) {
-            if (scopeMap.has(expression)) {
-                scope = scopeMap.get(expression);
-            } else {
-                scope = new Scope<any>(parent ? parent.expression : null, scope);
-                scopeMap.set(expression, scope);
-            }
-        }
+    private walkInner(astNode:AstNode<any,any>, phase:Phase<any>) {
+        phase.before.callAll(astNode);
 
-        var astPoint = new ASTPoint(expression, parent);
-        phase.before.callAll(expression, astPoint, scope);
-
+        let expression = astNode.expression;
         for (let i in expression) {
-            if (expression.hasOwnProperty(i) && i !== 'loc' && i !== 'original') {
-                walkInner(expression, i);
+            if (expression.hasOwnProperty(i)) {
+                let sub = expression[i];
+                if (!sub) {
+                    continue;
+                }
+                if (typeof sub.type === 'string') {
+                    this.walkInner(new AstNode(sub, astNode, sub, this.scopeMap, i), phase);
+                } else if (typeof sub.length === 'number') {
+                    for (var j = 0; j < sub.length; j++) {
+                        var obj = sub[j];
+                        if (typeof  obj.type === 'string') {
+                            var lengthBefore = sub.length;
+                            this.walkInner(new AstNode(obj, astNode, sub, this.scopeMap), phase);
+                            j -= lengthBefore - sub.length;
+                        }
+                    }
+                }
+
             }
         }
 
-        if (isExpression) {
-            phase.after.callAll(expression, astPoint, scope);
-        }
-    } else {
-        for (var i = 0; i < expression.length; i++) {
-            var lengthBefore = expression.length;
-            walkInner(expression, i);
-            i -= lengthBefore - expression.length;
-        }
-    }
-
-    function walkInner(expression: any, property: string|number) {
-        walk(expression[property], isExpression ? astPoint : parent, scope, phase, scopeMap);
+        phase.after.callAll(astNode);
     }
 }
 
-var features: Feature<any>[] = [removeExpressionStatements, removeUnusedFunctions, reduceTailRecursion];
+var features:Feature<any>[] = [removeExpressionStatements, removeUnusedFunctions, reduceTailRecursion];
 
-function walkFeature(feature: Feature<any>, ast: any) {
-
-    var scopeMap = new Map<Expression,Scope<any>>();
+function walkFeature(feature:Feature<any>, expression:Expression) {
+    var walker = new Walker();
 
     for (var j = 0; j < feature.phases.length; j++) {
-        walk(ast, null, null, feature.phases[j], scopeMap);
+        walker.walk(expression, feature.phases[j]);
     }
-    return j;
 }
 
-export = function (code: string): string {
-    var ast = recast.parse(code).program;
+export = function (code:string):string {
+    var ast:Expression = recast.parse(code).program;
 
     for (var i = 0; i < features.length; i++) {
         walkFeature(features[i], ast);

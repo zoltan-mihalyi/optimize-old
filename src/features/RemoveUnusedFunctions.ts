@@ -1,5 +1,6 @@
-import {Feature, ASTPoint} from "../Feature";
+import {Feature} from "../Feature";
 import Scope = require("../Scope");
+import AstNode = require("../AstNode");
 
 interface Counter {
     functionDeclaration:FunctionDeclaration;
@@ -8,24 +9,24 @@ interface Counter {
 
 var feature:Feature<Counter> = new Feature<Counter>();
 
-feature.addPhase().before.onFunctionDeclaration((fd:ASTPoint<FunctionDeclaration>, scope:Scope<Counter>) => {
-    scope.save(fd.expression.id, {
-        functionDeclaration: fd.expression,
+feature.addPhase().before.onFunctionDeclaration((node:AstNode<FunctionDeclaration,Counter>) => {
+    node.scope.save(node.expression.id, {
+        functionDeclaration: node.expression,
         usages: 0
     }, false);
 });
 
-feature.addPhase().before.onIdentifier((id:ASTPoint<Identifier>, scope:Scope<Counter>) => {
-    var saved = scope.get(id.expression);
-    if (saved && !scope.inside(saved.functionDeclaration)) { //todo inside not there
+feature.addPhase().before.onIdentifier((node:AstNode<Identifier,Counter>) => {
+    var saved = node.scope.get(node.expression);
+    if (saved && !node.scope.inside(saved.functionDeclaration)) {
         saved.usages++;
     }
 });
 
-feature.addPhase().before.onFunctionDeclaration((fd:ASTPoint<FunctionDeclaration>, scope:Scope<Counter>) => {
-    var saved = scope.get(fd.expression.id);
+feature.addPhase().before.onFunctionDeclaration((node:AstNode<FunctionDeclaration,Counter>) => {
+    var saved = node.scope.get(node.expression.id);
     if (saved.usages === 1) {
-        fd.remove();
+        node.remove();
     }
 });
 
