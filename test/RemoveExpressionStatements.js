@@ -1,4 +1,3 @@
-var assert = require('assert');
 var Helper = require('./Helper');
 
 describe('Remove expression statements', function() {

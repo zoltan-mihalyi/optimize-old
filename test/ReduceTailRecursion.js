@@ -1,4 +1,3 @@
-var assert = require('assert');
 var Helper = require('./Helper');
 
 describe('Reduce tail recursion', function() {

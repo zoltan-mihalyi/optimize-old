@@ -3,9 +3,18 @@ import removeExpressionStatements = require('./features/RemoveExpressionStatemen
 import reduceTailRecursion = require('./features/ReduceTailRecursion');
 import removeUnusedFunctions = require('./features/RemoveUnusedFunctions');
 import inlineExpression = require('./features/InlineExpression');
+import calculateArithmetic = require('./features/CalculateArithmetic');
 import {Feature, Phase} from "./Feature";
 import Scope = require("./Scope");
 import AstNode = require("./AstNode");
+
+var features:Feature<any>[] = [
+    removeExpressionStatements,
+    removeUnusedFunctions,
+    reduceTailRecursion,
+    inlineExpression,
+    calculateArithmetic
+];
 
 class Walker {
     private scopeMap = new Map<Expression,Scope<any>>();
@@ -43,8 +52,6 @@ class Walker {
         phase.after.callAll(astNode);
     }
 }
-
-var features:Feature<any>[] = [removeExpressionStatements, removeUnusedFunctions, reduceTailRecursion, inlineExpression];
 
 function walkFeature(feature:Feature<any>, expression:Expression) {
     var walker = new Walker();
