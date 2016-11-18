@@ -3,7 +3,7 @@ interface Expression {
 }
 
 interface Literal extends Expression {
-    value:number|string;
+    value:any;
     raw:string;
 }
 

@@ -6,6 +6,7 @@ console.log("1");
 console.log(true);
 console.log(false);
 console.log(1);
+console.log(1);
 
 console.log(1 + a);
 console.log(2);

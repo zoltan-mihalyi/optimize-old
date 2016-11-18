@@ -13,7 +13,7 @@ function b() {
     var x = 1, y = z, z = 1;
     console.log(1);
 
-    false || (x = 2);
+    u || (x = 2);
     console.log(x);
 
     x = 3;
