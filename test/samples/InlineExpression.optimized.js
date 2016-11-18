@@ -16,6 +16,9 @@ function b() {
     u || (x = 2);
     console.log(x);
 
+    x *= 3;
+    console.log(x);
+
     x = 3;
     console.log(3);
 

@@ -50,9 +50,11 @@ function handleAssignment(node:AstNode<any, Var>, id:Identifier, operator:string
     if (variable) {
         var runsAlways = (isExpressionStatement(node.parent.expression) || isVariableDeclarator(node.parent.expression));
         if (runsAlways && isLiteralLike(initial) && node.scope.hasInCurrentBlock(id)) {
-            var assigner = new Function('variable,newValue', `variable.value${operator}newValue`); //todo more check if not = operator
-            assigner(variable, getLiteralLikeValue(initial));
-            variable.hasValue = true;
+            if (operator === '=' || variable.hasValue) {
+                var assigner = new Function('variable,newValue', `variable.value${operator}newValue`);
+                assigner(variable, getLiteralLikeValue(initial));
+                variable.hasValue = true;
+            }
         } else {
             variable.hasValue = false;
         }
