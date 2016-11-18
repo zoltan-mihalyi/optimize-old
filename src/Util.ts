@@ -97,7 +97,7 @@ export function literal(value:number):Literal {
     };
 }
 
-export function whileStatement(test:Expression, body:BlockStatement):WhileStatement {
+export function whileStatement(test:Expression, body:Expression):WhileStatement {
     return {
         type: 'WhileStatement',
         test: test,

@@ -98,7 +98,7 @@ interface Directive extends Expression {
 
 interface WhileStatement extends Expression {
     test:Expression;
-    body:BlockStatement;
+    body:Expression;
 }
 
 interface LabeledStatement extends Expression {
@@ -117,11 +117,11 @@ interface ArrayExpression extends Expression {
 interface ForInStatement extends Expression {
     left:Expression;
     right:Expression;
-    body:BlockStatement;
+    body:Expression;
 }
 
 interface IfStatement extends Expression {
     test:Expression;
-    consequent:BlockStatement;
+    consequent:Expression;
     alternate:Expression;
 }
