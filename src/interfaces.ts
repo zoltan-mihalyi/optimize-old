@@ -13,6 +13,9 @@ interface BinaryExpression extends Expression {
     right:Expression;
 }
 
+interface LogicalExpression extends BinaryExpression {
+}
+
 interface UnaryExpression extends Expression {
     argument:Expression;
     operator:string;

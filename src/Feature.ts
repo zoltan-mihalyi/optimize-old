@@ -43,8 +43,17 @@ class FeatureStore<T> {
         this.on('UpdateExpression', callback);
     }
 
+    onBinaryExpressionLike(callback:Callback<BinaryExpression,T>) {
+        this.onBinaryExpression(callback);
+        this.onLogicalExpression(callback);
+    }
+
     onBinaryExpression(callback:Callback<BinaryExpression,T>) {
         this.on('BinaryExpression', callback);
+    }
+
+    onLogicalExpression(callback:Callback<LogicalExpression,T>) {
+        this.on('LogicalExpression', callback);
     }
 
     onIfStatement(callback:Callback<IfStatement,T>) {

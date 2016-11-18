@@ -22,8 +22,16 @@ export function isFunctionDeclaration(e:Expression):e is FunctionDeclaration {
     return e.type === 'FunctionDeclaration';
 }
 
+export function isBinaryExpressionLike(e:Expression):e is BinaryExpression {
+    return isBinaryExpression(e) || isLogicalExpression(e);
+}
+
 export function isBinaryExpression(e:Expression):e is BinaryExpression {
     return e.type === 'BinaryExpression';
+}
+
+export function isLogicalExpression(e:Expression):e is LogicalExpression {
+    return e.type === 'LogicalExpression';
 }
 
 export function isProgram(e:Expression):e is Program {

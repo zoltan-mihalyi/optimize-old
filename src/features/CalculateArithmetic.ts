@@ -5,7 +5,7 @@ import AstNode = require("../AstNode");
 
 var feature:Feature<any> = new Feature<any>();
 
-feature.addPhase().after.onBinaryExpression((node:AstNode<BinaryExpression, any>)=> {
+feature.addPhase().after.onBinaryExpressionLike((node:AstNode<BinaryExpression, any>)=> {
     var expression = node.expression;
     var right = expression.right;
     var left = expression.left;

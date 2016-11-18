@@ -1,5 +1,5 @@
 import {Feature} from "../Feature";
-import {isDirective, isLiteral, isBinaryExpression, isIdentifier} from "../Util";
+import {isDirective, isLiteral, isBinaryExpressionLike, isIdentifier} from "../Util";
 import AstNode = require("../AstNode");
 
 var feature = new Feature();
@@ -10,7 +10,7 @@ feature.addPhase().after.onExpressionStatement((a:AstNode<ExpressionStatement, a
 
     if (isLiteral(expression) && !isDirective(statement) || isIdentifier(expression)) {
         a.remove();
-    } else if (isBinaryExpression(expression) && isLiteral(expression.left) && isLiteral(expression.right)) {
+    } else if (isBinaryExpressionLike(expression) && isLiteral(expression.left) && isLiteral(expression.right)) {
         a.remove();
     }
 });
