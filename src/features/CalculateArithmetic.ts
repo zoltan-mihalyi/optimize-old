@@ -1,5 +1,5 @@
 import {Feature} from "../Feature";
-import {isLiteral, literalLike} from "../Util";
+import {isLiteral, literalLike, isLiteralLike, getLiteralLikeValue} from "../Util";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
@@ -9,8 +9,9 @@ feature.addPhase().after.onBinaryExpressionLike((node:AstNode<BinaryExpression, 
     var expression = node.expression;
     var right = expression.right;
     var left = expression.left;
-    if (isLiteral(left) && isLiteral(right)) {
-        var value = (new Function('left,right', `return left${expression.operator}right;`))(left.value, right.value);
+    if (isLiteralLike(left) && isLiteralLike(right)) {
+        var evaluator = new Function('left,right', `return left${expression.operator}right;`);
+        var value = evaluator(getLiteralLikeValue(left), getLiteralLikeValue(right));
         node.replaceWith([literalLike(value)])
     }
 });
@@ -18,9 +19,9 @@ feature.addPhase().after.onBinaryExpressionLike((node:AstNode<BinaryExpression, 
 feature.addPhase().after.onUnaryExpression((node:AstNode<UnaryExpression, any>)=> {
     var expression = node.expression;
     var argument = expression.argument;
-    if (isLiteral(argument)) {
-        var value = (new Function('arg', `return ${expression.operator} arg;`))(argument.value); //todo postfix operators?
-        if (value === void 0 && expression.operator === 'void' && argument.value === 0) {
+    if (isLiteralLike(argument)) {
+        var value = (new Function('arg', `return ${expression.operator} arg;`))(getLiteralLikeValue(argument)); //todo postfix operators?
+        if (value === void 0 && expression.operator === 'void' && isLiteral(argument) && argument.value === 0) {
             return; //already void 0
         }
         node.replaceWith([literalLike(value)])

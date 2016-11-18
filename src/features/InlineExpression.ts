@@ -1,13 +1,14 @@
 import {Feature} from "../Feature";
 import {
-    isLiteral,
     isAssignmentExpression,
     isIdentifier,
     literalLike,
     isUpdateExpression,
     isVariableDeclarator,
     isExpressionStatement,
-    literal
+    literal,
+    isLiteralLike,
+    getLiteralLikeValue
 } from "../Util";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
@@ -48,9 +49,9 @@ function handleAssignment(node:AstNode<any, Var>, id:Identifier, operator:string
 
     if (variable) {
         var runsAlways = (isExpressionStatement(node.parent.expression) || isVariableDeclarator(node.parent.expression));
-        if (runsAlways && isLiteral(initial) && node.scope.hasInCurrentBlock(id)) {
-            var assigner = new Function('variable,newValue', `variable.value${operator}newValue`);
-            assigner(variable, initial.value);
+        if (runsAlways && isLiteralLike(initial) && node.scope.hasInCurrentBlock(id)) {
+            var assigner = new Function('variable,newValue', `variable.value${operator}newValue`); //todo more check if not = operator
+            assigner(variable, getLiteralLikeValue(initial));
             variable.hasValue = true;
         } else {
             variable.hasValue = false;

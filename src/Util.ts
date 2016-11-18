@@ -30,6 +30,10 @@ export function isBinaryExpression(e:Expression):e is BinaryExpression {
     return e.type === 'BinaryExpression';
 }
 
+export function isUnaryExpression(e:Expression):e is UnaryExpression {
+    return e.type === 'UnaryExpression';
+}
+
 export function isLogicalExpression(e:Expression):e is LogicalExpression {
     return e.type === 'LogicalExpression';
 }
@@ -64,6 +68,20 @@ export function isUpdateExpression(e:Expression):e is UpdateExpression {
 
 export function isExpressionStatement(e:Expression):e is ExpressionStatement {
     return e.type === 'ExpressionStatement';
+}
+
+export function isLiteralLike(e:Expression):boolean {
+    return isLiteral(e) || (isUnaryExpression(e) && e.operator === 'void' && isLiteral(e.argument));
+}
+
+export function getLiteralLikeValue(e:Expression):boolean {
+    if (isLiteral(e)) {
+        return e.value;
+    } else if (isUnaryExpression(e) && e.operator === 'void') {
+        return void 0;
+    } else {
+        throw new Error('Cannot determine value');
+    }
 }
 
 export function returnStatement(argument?:Expression):ReturnStatement {
