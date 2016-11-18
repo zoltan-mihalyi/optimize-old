@@ -68,5 +68,7 @@ export = function (code:string):string {
         walkFeature(features[i], ast);
     }
 
-    return recast.print(ast).code;
+    return recast.print(ast, {
+        lineTerminator: '\n'
+    }).code;
 };
