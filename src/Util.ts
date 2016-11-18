@@ -73,6 +73,22 @@ export function returnStatement(argument?:Expression):ReturnStatement {
     };
 }
 
+export function literalLike(value:any):Expression {
+    if (value === void 0) {
+        return unaryExpression('void', true, literal(0));
+    }
+    return literal(value);
+}
+
+export function unaryExpression(operator:string, prefix:boolean, argument:Expression):UnaryExpression {
+    return {
+        type: 'UnaryExpression',
+        operator: operator,
+        argument: argument,
+        prefix: prefix
+    };
+}
+
 export function literal(value:number):Literal {
     return {
         type: 'Literal',

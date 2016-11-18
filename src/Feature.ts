@@ -56,6 +56,10 @@ class FeatureStore<T> {
         this.on('LogicalExpression', callback);
     }
 
+    onUnaryExpression(callback:Callback<UnaryExpression,T>) {
+        this.on('UnaryExpression', callback);
+    }
+
     onIfStatement(callback:Callback<IfStatement,T>) {
         this.on('IfStatement', callback);
     }

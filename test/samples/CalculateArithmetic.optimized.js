@@ -8,5 +8,11 @@ console.log(false);
 console.log(1);
 console.log(1);
 
+console.log(false);
+console.log(1);
+console.log(-1);
+console.log("string");
+console.log(void 0);
+
 console.log(1 + a);
 console.log(2);

@@ -3,10 +3,11 @@ import {
     isLiteral,
     isAssignmentExpression,
     isIdentifier,
-    literal,
+    literalLike,
     isUpdateExpression,
     isVariableDeclarator,
-    isExpressionStatement
+    isExpressionStatement,
+    literal
 } from "../Util";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
@@ -96,7 +97,7 @@ phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
     var value = node.scope.get(expression);
 
     if (value && value.writesFromFunctionOnly && value.hasValue) {
-        node.replaceWith([literal(value.value)]);
+        node.replaceWith([literalLike(value.value)]);
     }
 });
 
