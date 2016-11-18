@@ -19,8 +19,10 @@ var features:Feature<any>[] = [
 class Walker {
     private scopeMap = new Map<Expression,Scope<any>>();
 
-    walk(expression:Expression, phase:Phase<any>) {
-        this.walkInner(new AstNode(expression, null, null, this.scopeMap), phase);
+    walk(expression:Expression, phase:Phase<any>):boolean {
+        var astNode = new AstNode(expression, null, null, this.scopeMap);
+        this.walkInner(astNode, phase);
+        return astNode.changed;
     }
 
     private walkInner(astNode:AstNode<any,any>, phase:Phase<any>) {
@@ -53,19 +55,25 @@ class Walker {
     }
 }
 
-function walkFeature(feature:Feature<any>, expression:Expression) {
+function walkFeature(feature:Feature<any>, expression:Expression):boolean {
+    var changed = false;
     var walker = new Walker();
 
     for (var j = 0; j < feature.phases.length; j++) {
-        walker.walk(expression, feature.phases[j]);
+        changed = changed || walker.walk(expression, feature.phases[j]);
     }
+    return changed;
 }
 
 export = function (code:string):string {
     var ast:Expression = recast.parse(code).program;
 
-    for (var i = 0; i < features.length; i++) {
-        walkFeature(features[i], ast);
+    var needRun = true;
+    while (needRun) {
+        needRun = false;
+        for (var i = 0; i < features.length; i++) {
+            needRun = needRun || walkFeature(features[i], ast);
+        }
     }
 
     return recast.print(ast, {

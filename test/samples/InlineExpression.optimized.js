@@ -21,7 +21,7 @@ function b() {
 
     x++;
     x = 8;
-    console.log(x);
+    console.log(8);
 
     console.log(q);
     var q = 2;

@@ -2,6 +2,7 @@ import Scope = require("./Scope");
 import {isBlockStatementLike} from "./Util";
 class AstNode<T extends Expression, S> {
     scope:Scope<S>;
+    changed:boolean = false;
 
     constructor(public expression:T, public parent:AstNode<any,S>, private parentObject:any, scopeMap:Map<Expression, Scope<any>>, private property?:string,) {
         if (isBlockStatementLike(expression)) {
@@ -33,6 +34,14 @@ class AstNode<T extends Expression, S> {
                 throw new Error('Must be 1.');
             }
             this.parentObject[this.property] = expressions[0];
+        }
+        this.markChanged();
+    }
+
+    private markChanged() {
+        this.changed = true;
+        if (this.parent) {
+            this.parent.markChanged();
         }
     }
 
