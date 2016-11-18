@@ -116,3 +116,9 @@ interface ForInStatement extends Expression {
     right:Expression;
     body:BlockStatement;
 }
+
+interface IfStatement extends Expression {
+    test:Expression;
+    consequent:BlockStatement;
+    alternate:Expression;
+}

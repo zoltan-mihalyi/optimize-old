@@ -4,6 +4,7 @@ import reduceTailRecursion = require('./features/ReduceTailRecursion');
 import removeUnusedFunctions = require('./features/RemoveUnusedFunctions');
 import inlineExpression = require('./features/InlineExpression');
 import calculateArithmetic = require('./features/CalculateArithmetic');
+import reduceConditionals = require('./features/ReduceConditionals');
 import {Feature, Phase} from "./Feature";
 import Scope = require("./Scope");
 import AstNode = require("./AstNode");
@@ -13,7 +14,8 @@ var features:Feature<any>[] = [
     removeUnusedFunctions,
     reduceTailRecursion,
     inlineExpression,
-    calculateArithmetic
+    calculateArithmetic,
+    reduceConditionals
 ];
 
 class Walker {

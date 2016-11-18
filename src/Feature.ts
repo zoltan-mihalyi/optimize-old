@@ -47,6 +47,10 @@ class FeatureStore<T> {
         this.on('BinaryExpression', callback);
     }
 
+    onIfStatement(callback:Callback<IfStatement,T>) {
+        this.on('IfStatement', callback);
+    }
+
     private on(type:string, callback:Callback<Expression,T>) {
         if (!this.store[type]) {
             this.store[type] = [callback];
