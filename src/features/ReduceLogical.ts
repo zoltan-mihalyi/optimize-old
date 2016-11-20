@@ -1,5 +1,6 @@
 import {Feature} from "../Feature";
-import {isLiteralLike, getLiteralLikeValue} from "../Util";
+import {getValueInformation} from "../Util";
+import {KnownValue} from "../Value";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
@@ -7,13 +8,18 @@ var feature:Feature<any> = new Feature<any>();
 
 feature.addPhase().after.onLogicalExpression((node:AstNode<LogicalExpression, any>)=> {
     var expression = node.expression;
-    var left = expression.left;
-    if (isLiteralLike(left) && !isLiteralLike(expression.right)) {
-        var useLeft = getLiteralLikeValue(left);
-        if (expression.operator === '&&') {
-            useLeft = !useLeft;
+    var leftValue = getValueInformation(expression.left);
+    var rightValue = getValueInformation(expression.right);
+
+    if (leftValue && !rightValue) {
+        var leftAsBoolean = leftValue.map(x=>!!x);
+        if (leftAsBoolean instanceof KnownValue) {
+            var useLeft = leftAsBoolean.value;
+            if (expression.operator === '&&') {
+                useLeft = !useLeft;
+            }
+            node.replaceWith([useLeft ? expression.left : expression.right])
         }
-        node.replaceWith([useLeft ? left : expression.right])
     }
 });
 

@@ -1,5 +1,6 @@
 interface Expression {
     type:string;
+    calculatedValue?:any;
 }
 
 interface Literal extends Expression {
@@ -101,6 +102,9 @@ interface WhileStatement extends Expression {
     body:Expression;
 }
 
+interface DoWhileStatement extends WhileStatement {
+}
+
 interface LabeledStatement extends Expression {
     label:Identifier;
     body:Expression;
@@ -118,6 +122,9 @@ interface ForInStatement extends Expression {
     left:Expression;
     right:Expression;
     body:Expression;
+}
+
+interface ForOfStatement extends ForInStatement {
 }
 
 interface IfStatement extends Expression {

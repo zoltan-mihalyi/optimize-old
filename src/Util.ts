@@ -1,3 +1,6 @@
+import {KnownValue, Value} from "./Value";
+import AstNode = require("./AstNode");
+import ForStatement = ts.ForStatement;
 export function isLiteral(e:Expression):e is Literal {
     return e.type === 'Literal';
 }
@@ -54,8 +57,16 @@ export function isForInStatement(e:Expression):e is ForInStatement {
     return e.type === 'ForInStatement';
 }
 
+export function isForOfStatement(e:Expression):e is ForOfStatement {
+    return e.type === 'ForOfStatement';
+}
+
 export function isVariableDeclarator(e:Expression):e is VariableDeclarator {
     return e.type === 'VariableDeclarator';
+}
+
+export function isVariableDeclaration(e:Expression):e is VariableDeclaration {
+    return e.type === 'VariableDeclaration';
 }
 
 export function isCallExpression(e:Expression):e is CallExpression {
@@ -70,11 +81,33 @@ export function isExpressionStatement(e:Expression):e is ExpressionStatement {
     return e.type === 'ExpressionStatement';
 }
 
+export function isWhileStatement(e:Expression):e is WhileStatement {
+    return e.type === 'WhileStatement';
+}
+
+export function isDoWhileStatement(e:Expression):e is DoWhileStatement {
+    return e.type === 'DoWhileStatement';
+}
+
+export function isForStatement(e:Expression):e is ForStatement {
+    return e.type === 'ForStatement';
+}
+
+export function getValueInformation(e:Expression):Value {
+    if (e.calculatedValue) {
+        return e.calculatedValue;
+    }
+    if (isLiteralLike(e)) {
+        return new KnownValue(getLiteralLikeValue(e));
+    }
+    return null;
+}
+
 export function isLiteralLike(e:Expression):boolean {
     return isLiteral(e) || (isUnaryExpression(e) && e.operator === 'void' && isLiteral(e.argument));
 }
 
-export function getLiteralLikeValue(e:Expression):boolean {
+function getLiteralLikeValue(e:Expression):boolean {
     if (isLiteral(e)) {
         return e.value;
     } else if (isUnaryExpression(e) && e.operator === 'void') {

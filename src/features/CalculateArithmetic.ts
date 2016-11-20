@@ -1,5 +1,5 @@
 import {Feature} from "../Feature";
-import {isLiteral, literalLike, isLiteralLike, getLiteralLikeValue} from "../Util";
+import {getValueInformation} from "../Util";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
@@ -7,24 +7,21 @@ var feature:Feature<any> = new Feature<any>();
 
 feature.addPhase().after.onBinaryExpressionLike((node:AstNode<BinaryExpression, any>)=> {
     var expression = node.expression;
-    var right = expression.right;
-    var left = expression.left;
-    if (isLiteralLike(left) && isLiteralLike(right)) {
-        var evaluator = new Function('left,right', `return left${expression.operator}right;`);
-        var value = evaluator(getLiteralLikeValue(left), getLiteralLikeValue(right));
-        node.replaceWith([literalLike(value)])
+    var rightValue = getValueInformation(expression.right);
+    var leftValue = getValueInformation(expression.left);
+    if (leftValue && rightValue) {
+        var evaluator = new Function('left,right', `return left ${expression.operator} right;`) as (x, y)=>any;
+        node.setCalculatedValue(leftValue.product(rightValue, evaluator));
     }
 });
 
 feature.addPhase().after.onUnaryExpression((node:AstNode<UnaryExpression, any>)=> {
     var expression = node.expression;
     var argument = expression.argument;
-    if (isLiteralLike(argument)) {
-        var value = (new Function('arg', `return ${expression.operator} arg;`))(getLiteralLikeValue(argument)); //todo postfix operators?
-        if (value === void 0 && expression.operator === 'void' && isLiteral(argument) && argument.value === 0) {
-            return; //already void 0
-        }
-        node.replaceWith([literalLike(value)])
+    var valueInformation = getValueInformation(argument);
+    if (valueInformation) {
+        var mapper = new Function('arg', `return ${expression.operator} arg;`) as (x)=>any;
+        node.setCalculatedValue(valueInformation.map(mapper));
     }
 });
 

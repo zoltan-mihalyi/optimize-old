@@ -2,22 +2,33 @@ import {Feature} from "../Feature";
 import {
     isAssignmentExpression,
     isIdentifier,
-    literalLike,
     isUpdateExpression,
     isVariableDeclarator,
-    isExpressionStatement,
     literal,
-    isLiteralLike,
-    getLiteralLikeValue
+    isFunctionDeclaration,
+    getValueInformation,
+    isExpressionStatement,
+    isBlockStatement,
+    isIfStatement,
+    isWhileStatement,
+    isVariableDeclaration,
+    isForInStatement,
+    isForStatement,
+    isDoWhileStatement,
+    isForOfStatement
 } from "../Util";
+import {Value, unknown} from "../Value";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
 var feature:Feature<any> = new Feature<any>();
 
+const enum RunCount{
+    ONE, ZERO_OR_ONE, UNKNOWN
+}
+
 interface Var {
-    value:any;
-    hasValue:boolean;
+    value:Value;
     writesFromFunctionOnly:boolean;
 }
 
@@ -25,8 +36,7 @@ feature.addPhase().before.onVariableDeclarator((node:AstNode<VariableDeclarator,
     var expression = node.expression;
     var declaration = node.parent.expression as VariableDeclaration;
     node.scope.save(expression.id, {
-        value: null,
-        hasValue: false,
+        value: unknown,
         writesFromFunctionOnly: true
     }, declaration.kind === 'let');
 });
@@ -44,20 +54,33 @@ feature.addPhase().before.onExpressionStatement((node:AstNode<ExpressionStatemen
 
 var phase = feature.addPhase();
 
-function handleAssignment(node:AstNode<any, Var>, id:Identifier, operator:string, initial:Expression) {
+function handleAssignment(node:AstNode<any, Var>, id:Identifier, operator:string, valueExpression:Expression) {
     var variable = node.scope.get(id);
 
-    if (variable) {
-        var runsAlways = (isExpressionStatement(node.parent.expression) || isVariableDeclarator(node.parent.expression));
-        if (runsAlways && isLiteralLike(initial) && node.scope.hasInCurrentBlock(id)) {
-            if (operator === '=' || variable.hasValue) {
-                var assigner = new Function('variable,newValue', `variable.value${operator}newValue`);
-                assigner(variable, getLiteralLikeValue(initial));
-                variable.hasValue = true;
-            }
+    if (!variable) {
+        return;
+    }
+
+    var value = getValueInformation(valueExpression);
+    if (value) {
+        var newValue:Value;
+        if (operator === '=') {
+            newValue = value; //can overwrite unknown value
         } else {
-            variable.hasValue = false;
+            var mapper = new Function('current,value', `return current ${operator} value;`) as (x, y)=>any;
+            newValue = variable.value.product(value, mapper);
         }
+
+        var runCunt = getRunCount(node);
+        if (runCunt === RunCount.ONE) {
+            variable.value = newValue;
+        } else if (runCunt === RunCount.ZERO_OR_ONE) {
+            variable.value = variable.value.or(newValue);
+        } else {
+            variable.value = unknown;
+        }
+    } else {
+        variable.value = unknown;
     }
 }
 
@@ -80,7 +103,8 @@ phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
     var parentExpression = node.parent.expression;
     var expression = node.expression;
     if (isVariableDeclarator(parentExpression) && parentExpression.id === expression) {
-        handleAssignment(node, parentExpression.id, '=', parentExpression.init);
+        var init = parentExpression.init || literal(void 0);
+        handleAssignment(node, parentExpression.id, '=', init);
         return; //just initializing
     }
 
@@ -97,10 +121,11 @@ phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
         }
     }
 
-    var value = node.scope.get(expression);
+    var variable = node.scope.get(expression);
 
-    if (value && value.writesFromFunctionOnly && value.hasValue) {
-        node.replaceWith([literalLike(value.value)]);
+    if (variable && variable.writesFromFunctionOnly) {
+        var value = variable.value;
+        node.setCalculatedValue(value);
     }
 });
 
@@ -110,6 +135,31 @@ function getModifiedExpression(e:Expression):Expression {
     } else if (isUpdateExpression(e)) {
         return e.argument;
     }
+}
+
+function getRunCount(node:AstNode<Expression,any>):RunCount {
+    var current = node;
+    var result:RunCount = RunCount.ONE;
+    while (current.parent) {
+        current = current.parent;
+        var expression = current.expression;
+        if (isExpressionStatement(expression) || isVariableDeclarator(expression) || isVariableDeclaration(expression)) {
+            continue;
+        }
+        if (isBlockStatement(expression)) {
+            continue;
+        }
+        if (isFunctionDeclaration(expression)) {
+            break;
+        }
+
+        if (isWhileStatement(expression) || isForInStatement(expression) || isForOfStatement(expression) || isForStatement(expression) || isDoWhileStatement(expression)) {
+            return RunCount.UNKNOWN;
+        }
+
+        result = RunCount.ZERO_OR_ONE;
+    }
+    return result;
 }
 
 export = feature;
