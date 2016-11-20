@@ -1,6 +1,5 @@
 import {KnownValue, Value} from "./Value";
 import AstNode = require("./AstNode");
-import ForStatement = ts.ForStatement;
 export function isLiteral(e:Expression):e is Literal {
     return e.type === 'Literal';
 }
@@ -105,6 +104,10 @@ export function getValueInformation(e:Expression):Value {
 
 export function isLiteralLike(e:Expression):boolean {
     return isLiteral(e) || (isUnaryExpression(e) && e.operator === 'void' && isLiteral(e.argument));
+}
+
+export function isLoop(e) {
+    return isWhileStatement(e) || isForInStatement(e) || isForOfStatement(e) || isForStatement(e) || isDoWhileStatement(e);
 }
 
 function getLiteralLikeValue(e:Expression):boolean {

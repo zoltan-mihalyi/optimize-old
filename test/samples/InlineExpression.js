@@ -75,3 +75,15 @@ function d() {
     console.log(x < 5);
 }
 d();
+
+function e() {
+    var x = 31;
+    var y = 42;
+
+    while (u) {
+        console.log(x);
+        console.log(y);
+        x++;
+    }
+}
+e();

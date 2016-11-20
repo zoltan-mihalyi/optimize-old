@@ -9,13 +9,8 @@ import {
     getValueInformation,
     isExpressionStatement,
     isBlockStatement,
-    isIfStatement,
-    isWhileStatement,
     isVariableDeclaration,
-    isForInStatement,
-    isForStatement,
-    isDoWhileStatement,
-    isForOfStatement
+    isLoop
 } from "../Util";
 import {Value, unknown} from "../Value";
 import Scope = require("../Scope");
@@ -30,6 +25,7 @@ const enum RunCount{
 interface Var {
     value:Value;
     writesFromFunctionOnly:boolean;
+    writesInLoops:Expression[];
 }
 
 feature.addPhase().before.onVariableDeclarator((node:AstNode<VariableDeclarator, Var>)=> {
@@ -37,15 +33,30 @@ feature.addPhase().before.onVariableDeclarator((node:AstNode<VariableDeclarator,
     var declaration = node.parent.expression as VariableDeclaration;
     node.scope.save(expression.id, {
         value: unknown,
-        writesFromFunctionOnly: true
+        writesFromFunctionOnly: true,
+        writesInLoops: []
     }, declaration.kind === 'let');
 });
 
 function setWriteInfo(modified:Expression, node:AstNode<Expression, Var>) {
     if (modified && isIdentifier(modified)) {
         var variable = node.scope.get(modified);
-        if (variable && !node.scope.hasInCurrentFunction(modified)) {
-            variable.writesFromFunctionOnly = false;
+
+        if(variable){
+            var current = node;
+            while (current.parent) {
+                current = current.parent;
+                if (isFunctionDeclaration(current.expression)) {
+                    break;
+                }
+                if (isLoop(current.expression)) {
+                    variable.writesInLoops.push(current.expression);
+                }
+            }
+
+            if (!node.scope.hasInCurrentFunction(modified)) {
+                variable.writesFromFunctionOnly = false;
+            }
         }
     }
 }
@@ -129,11 +140,24 @@ phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
 
     var variable = node.scope.get(expression);
 
-    if (variable && variable.writesFromFunctionOnly) {
-        var value = variable.value;
-        node.setCalculatedValue(value);
+    if (variable) {
+        if (variable.writesFromFunctionOnly && !canBeModifiedInLoop(variable, node)) {
+            var value = variable.value;
+            node.setCalculatedValue(value);
+        }
     }
 });
+
+function canBeModifiedInLoop(variable:Var, node:AstNode<Expression,any>) {
+    var current = node;
+    while (current.parent) {
+        current = current.parent;
+        if (variable.writesInLoops.indexOf(current.expression) !== -1) {
+            return true;
+        }
+    }
+    return false;
+}
 
 function getRunCount(node:AstNode<Expression,any>):RunCount {
     var current = node;
@@ -151,7 +175,7 @@ function getRunCount(node:AstNode<Expression,any>):RunCount {
             break;
         }
 
-        if (isWhileStatement(expression) || isForInStatement(expression) || isForOfStatement(expression) || isForStatement(expression) || isDoWhileStatement(expression)) {
+        if (isLoop(expression)) {
             return RunCount.UNKNOWN;
         }
 

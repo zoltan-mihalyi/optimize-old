@@ -102,6 +102,13 @@ interface WhileStatement extends Expression {
     body:Expression;
 }
 
+interface ForStatement extends Expression {
+    init:Expression;
+    test:Expression;
+    update:Expression;
+    body:Expression;
+}
+
 interface DoWhileStatement extends WhileStatement {
 }
 
