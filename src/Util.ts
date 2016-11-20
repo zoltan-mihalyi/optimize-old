@@ -1,4 +1,4 @@
-import {KnownValue, Value} from "./Value";
+import {KnownValue, Value, ObjectValue} from "./Value";
 import AstNode = require("./AstNode");
 export function isLiteral(e:Expression):e is Literal {
     return e.type === 'Literal';
@@ -104,6 +104,10 @@ export function isForStatement(e:Expression):e is ForStatement {
     return e.type === 'ForStatement';
 }
 
+export function isArrayExpression(e:Expression):e is ArrayExpression {
+    return e.type === 'ArrayExpression';
+}
+
 export function getValueInformation(e:Expression):Value {
     if (e.calculatedValue) {
         return e.calculatedValue;
@@ -111,7 +115,25 @@ export function getValueInformation(e:Expression):Value {
     if (isLiteralLike(e)) {
         return new KnownValue(getLiteralLikeValue(e));
     }
+    if (isArrayExpression(e)) {
+        return isClean(e) ? new ObjectValue() : null;
+    }
     return null;
+}
+
+function isClean(e:Expression) {
+    if (isLiteralLike(e)) {
+        return true;
+    }
+    if (isArrayExpression(e)) {
+        for (var i = 0; i < e.elements.length; i++) {
+            var element = e.elements[i];
+            if (!isClean(element)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 export function isLiteralLike(e:Expression):boolean {

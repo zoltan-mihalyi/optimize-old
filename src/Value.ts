@@ -1,42 +1,46 @@
 export abstract class Value {
-    abstract map(mapper:(value)=>any):Value;
+    abstract map(mapper:(value:SingleValue)=>Value):Value;
 
     abstract or(value:Value):Value;
 
-    abstract product(other:Value, mapper:(left, right)=>any):Value;
+    abstract product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value;
 }
 
-export class KnownValue extends Value {
-
-    constructor(public value:any) {
-        super();
-    }
-
+abstract class SingleValue extends Value {
     or(value:Value):Value {
-        if (value instanceof KnownValue) {
-            return FiniteSetOfValues.create([this.value, value.value]);
+        if (value instanceof SingleValue) {
+            return FiniteSetOfValues.create([this, value]);
         } else {
             return value.or(this);
         }
     }
 
-    map(mapper:(value)=>any):Value {
-        return new KnownValue(mapper(this.value));
+    map(mapper:(value:SingleValue)=>Value):Value {
+        return mapper(this);
     }
 
-    product(other:Value, mapper:(left, right)=>any):Value {
-        return other.map(rval=>mapper(this.value, rval));
+    product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
+        return other.map(rval=>mapper(this, rval));
     }
 }
 
+export class KnownValue extends SingleValue {
+    constructor(public value:any) {
+        super();
+    }
+}
+
+export class ObjectValue extends SingleValue {
+}
+
 export class FiniteSetOfValues extends Value {
-    private constructor(private values:any[]) {
+    private constructor(private values:SingleValue[]) {
         super();
     }
 
     or(value:Value):Value {
-        if (value instanceof KnownValue) {
-            return FiniteSetOfValues.create([value.value, ...this.values]);
+        if (value instanceof SingleValue) {
+            return FiniteSetOfValues.create([value, ...this.values]);
         } else if (value instanceof FiniteSetOfValues) {
             return FiniteSetOfValues.create([...value.values, ...this.values]);
         } else {
@@ -44,24 +48,24 @@ export class FiniteSetOfValues extends Value {
         }
     }
 
-    map(mapper:(value)=>any):Value {
-        var mapped:any[] = [];
+    map(mapper:(value:SingleValue)=>Value):Value {
+        var mapped:SingleValue[] = [];
         for (var i = 0; i < this.values.length; i++) {
             mapped.push(mapper(this.values[i]));
         }
         return FiniteSetOfValues.create(mapped);
     }
 
-    product(other:Value, mapper:(left, right)=>any):Value {
-        if (other instanceof KnownValue) {
-            return this.map(lval=>mapper(lval, other.value));
+    product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
+        if (other instanceof SingleValue) {
+            return this.map(lval=>mapper(lval, other));
         } else if (other instanceof FiniteSetOfValues) {
             return this.setProduct(other, mapper);
         }
     }
 
-    private setProduct(other:FiniteSetOfValues, mapper:(left, right)=>any):Value {
-        var values = [];
+    private setProduct(other:FiniteSetOfValues, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
+        var values:Value[] = [];
         for (var i = 0; i < this.values.length; i++) {
             var left = this.values[i];
             for (var j = 0; j < other.values.length; j++) {
@@ -73,23 +77,38 @@ export class FiniteSetOfValues extends Value {
         return FiniteSetOfValues.create(values);
     }
 
-    static create(values:any[]):Value {
-        var first = values[0];
-        for (var i = 1; i < values.length; i++) {
-            if (values[i] !== first) {
-                return new FiniteSetOfValues(values);
-            }
+    static create(values:SingleValue[]):Value {
+        if (allSameAndKnown(values)) {
+            return values[0];
         }
-        return new KnownValue(first);
+        return new FiniteSetOfValues(values);
     }
 }
 
+function allSameAndKnown(values:SingleValue[]):boolean {
+    var first = values[0];
+    if (first instanceof KnownValue) {
+        for (var i = 1; i < values.length; i++) {
+            var value = values[i];
+            if (value instanceof KnownValue) {
+                if (first.value !== value.value) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 export class UnknownValue extends Value {
-    or(value:Value):Value {
+    or():Value {
         return this;
     }
 
-    map(mapper):Value {
+    map():Value {
         return this;
     }
 

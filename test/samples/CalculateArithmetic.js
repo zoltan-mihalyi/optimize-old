@@ -14,6 +14,8 @@ console.log(+'1');
 console.log(-'1');
 console.log(typeof 'a');
 console.log(void 42);
+console.log(![]);
+console.log(void []);
 
 console.log(1 + a);
 console.log(0 || null || 2);

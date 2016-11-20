@@ -11,8 +11,14 @@ feature.addPhase().after.onLogicalExpression((node:AstNode<LogicalExpression, an
     var leftValue = getValueInformation(expression.left);
     var rightValue = getValueInformation(expression.right);
 
-    if (leftValue && !rightValue) {
-        var leftAsBoolean = leftValue.map(x=>!!x);
+    if (leftValue) {
+        var leftAsBoolean = leftValue.map(value=> {
+            if (value instanceof KnownValue) {
+                return new KnownValue(!!value.value);
+            } else {
+                return new KnownValue(true);
+            }
+        });
         if (leftAsBoolean instanceof KnownValue) {
             var useLeft = leftAsBoolean.value;
             if (expression.operator === '&&') {

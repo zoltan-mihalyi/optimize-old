@@ -12,3 +12,9 @@ if (a) {
 } else {
     console.log(9);
 }
+
+console.log(10);
+
+if ([console.log(1)]) {
+    console.log(11);
+}

@@ -12,7 +12,7 @@ import {
     isLoop,
     isFunctionLike
 } from "../Util";
-import {Value, unknown} from "../Value";
+import {Value, unknown, KnownValue} from "../Value";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
@@ -85,7 +85,12 @@ function handleAssignment(node:AstNode<any, Var>, id:Identifier, operator:string
             newValue = value; //can overwrite unknown value
         } else {
             var mapper = new Function('current,value', `return current ${operator} value;`) as (x, y)=>any;
-            newValue = variable.value.product(value, mapper);
+            newValue = variable.value.product(value, (left, right)=> {
+                if (left instanceof KnownValue && right instanceof KnownValue) {
+                    return new KnownValue(mapper(left.value, right.value));
+                }
+                return unknown;
+            });
         }
 
         var runCunt = getRunCount(node);
