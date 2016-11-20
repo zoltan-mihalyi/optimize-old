@@ -1,10 +1,15 @@
 function a() {
     var x = 2;
+    var y = 2;
+    var z = 2;
     b();
     console.log(x);
+    console.log(y);
+    console.log(z);
 
     function b() {
-        x++;
+        y = 3;
+        u || x++;
     }
 }
 a();

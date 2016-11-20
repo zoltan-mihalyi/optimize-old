@@ -41,15 +41,21 @@ feature.addPhase().before.onVariableDeclarator((node:AstNode<VariableDeclarator,
     }, declaration.kind === 'let');
 });
 
-feature.addPhase().before.onExpressionStatement((node:AstNode<ExpressionStatement, Var>)=> {
-    var expression = node.expression.expression;
-    var modified = getModifiedExpression(expression);
+function setWriteInfo(modified:Expression, node:AstNode<Expression, Var>) {
     if (modified && isIdentifier(modified)) {
         var variable = node.scope.get(modified);
         if (variable && !node.scope.hasInCurrentFunction(modified)) {
             variable.writesFromFunctionOnly = false;
         }
     }
+}
+
+feature.addPhase().before.onUpdateExpression((node:AstNode<UpdateExpression, Var>)=> {
+    setWriteInfo(node.expression.argument, node);
+});
+
+feature.addPhase().before.onAssignmentExpression((node:AstNode<AssignmentExpression, Var>)=> {
+    setWriteInfo(node.expression.left, node);
 });
 
 var phase = feature.addPhase();
@@ -128,14 +134,6 @@ phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
         node.setCalculatedValue(value);
     }
 });
-
-function getModifiedExpression(e:Expression):Expression {
-    if (isAssignmentExpression(e)) {
-        return e.left;
-    } else if (isUpdateExpression(e)) {
-        return e.argument;
-    }
-}
 
 function getRunCount(node:AstNode<Expression,any>):RunCount {
     var current = node;
