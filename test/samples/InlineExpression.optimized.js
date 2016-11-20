@@ -1,16 +1,26 @@
 function a() {
+    var w = 2;
     var x = 2;
     var y = 2;
     var z = 2;
     b();
+    c();
+    console.log(w);
     console.log(x);
     console.log(y);
     console.log(2);
 
     function b() {
-        y = 3;
         u || x++;
     }
+
+    c = ()=> {
+        w = 3;
+    };
+
+    (function() {
+        y = 3;
+    })
 }
 a();
 

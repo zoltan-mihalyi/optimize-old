@@ -5,12 +5,12 @@ import {
     isUpdateExpression,
     isVariableDeclarator,
     literal,
-    isFunctionDeclaration,
     getValueInformation,
     isExpressionStatement,
     isBlockStatement,
     isVariableDeclaration,
-    isLoop
+    isLoop,
+    isFunctionLike
 } from "../Util";
 import {Value, unknown} from "../Value";
 import Scope = require("../Scope");
@@ -42,11 +42,11 @@ function setWriteInfo(modified:Expression, node:AstNode<Expression, Var>) {
     if (modified && isIdentifier(modified)) {
         var variable = node.scope.get(modified);
 
-        if(variable){
+        if (variable) {
             var current = node;
             while (current.parent) {
                 current = current.parent;
-                if (isFunctionDeclaration(current.expression)) {
+                if (isFunctionLike(current.expression)) {
                     break;
                 }
                 if (isLoop(current.expression)) {
@@ -171,7 +171,7 @@ function getRunCount(node:AstNode<Expression,any>):RunCount {
         if (isBlockStatement(expression)) {
             continue;
         }
-        if (isFunctionDeclaration(expression)) {
+        if (isFunctionLike(expression)) {
             break;
         }
 

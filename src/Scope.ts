@@ -1,10 +1,10 @@
-import {isFunctionDeclaration} from "./Util";
+import {isFunctionLike} from "./Util";
 class Scope<T> {
     private store:{[idx:string]:T} = Object.create(null);
     private functionScope:boolean;
 
     constructor(private parentExpression:Expression, private parent:Scope<T>) {
-        this.functionScope = parent === null || isFunctionDeclaration(parentExpression);
+        this.functionScope = parent === null || isFunctionLike(parentExpression);
     }
 
     save(id:Identifier, object:T, letExpression:boolean):void {

@@ -20,8 +20,20 @@ export function isBlockStatementLike(e:Expression):e is BlockStatement {
     return isBlockStatement(e) || isProgram(e);
 }
 
-export function isFunctionDeclaration(e:Expression):e is FunctionDeclaration {
+function isFunctionDeclaration(e:Expression):e is FunctionDeclaration {
     return e.type === 'FunctionDeclaration';
+}
+
+function isFunctionExpression(e:Expression):e is FunctionExpression {
+    return e.type === 'FunctionExpression';
+}
+
+function isArrowFunctionExpression(e:Expression):e is ArrowFunctionExpression {
+    return e.type === 'ArrowFunctionExpression';
+}
+
+export function isFunctionLike(e:Expression):e is FunctionDeclaration {
+    return isFunctionDeclaration(e) || isFunctionExpression(e) || isArrowFunctionExpression(e);
 }
 
 export function isBinaryExpressionLike(e:Expression):e is BinaryExpression {

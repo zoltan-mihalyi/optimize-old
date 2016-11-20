@@ -42,6 +42,9 @@ interface FunctionDeclaration extends Expression {
 interface FunctionExpression extends FunctionDeclaration {
 }
 
+interface ArrowFunctionExpression extends FunctionExpression {
+}
+
 interface BlockStatement extends Expression {
     body:Expression[];
 }
