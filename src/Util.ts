@@ -118,6 +118,9 @@ export function getValueInformation(e:Expression):Value {
     if (isArrayExpression(e)) {
         return isClean(e) ? new ObjectValue() : null;
     }
+    if (isFunctionLike(e)) {
+        return new ObjectValue();
+    }
     return null;
 }
 

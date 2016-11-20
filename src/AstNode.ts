@@ -1,6 +1,6 @@
 import Scope = require("./Scope");
 import {isBlockStatementLike, literalLike, isUnaryExpression, isLiteral} from "./Util";
-import {Value, KnownValue, FiniteSetOfValues} from "./Value";
+import {Value, KnownValue, FiniteSetOfValues, ObjectValue} from "./Value";
 class AstNode<T extends Expression, S> {
     scope:Scope<S>;
     changed:boolean = false;
@@ -46,7 +46,7 @@ class AstNode<T extends Expression, S> {
                 return; //already void 0
             }
             this.replaceWith([literalLike(value.value)]);
-        } else if (value instanceof FiniteSetOfValues) {
+        } else if (value instanceof FiniteSetOfValues || value instanceof ObjectValue) {
             if (!expression.calculatedValue) {
                 expression.calculatedValue = value;
                 this.markChanged();

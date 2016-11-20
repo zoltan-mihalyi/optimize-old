@@ -31,3 +31,15 @@ if ([1, 2, 3]) {
 if ([console.log(1)]) {
     console.log(11);
 }
+
+function fx() {
+}
+
+if (fx) {
+    console.log(12);
+}
+
+if (function() {
+    }) {
+    console.log(13);
+}
