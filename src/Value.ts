@@ -47,9 +47,9 @@ export class FiniteSetOfValues extends Value {
 
     or(value:Value):Value {
         if (value instanceof SingleValue) {
-            return FiniteSetOfValues.create([value, ...this.values]);
+            return FiniteSetOfValues.create([...this.values, value]);
         } else if (value instanceof FiniteSetOfValues) {
-            return FiniteSetOfValues.create([...value.values, ...this.values]);
+            return FiniteSetOfValues.create([...this.values, ...value.values]);
         } else {
             return value.or(this);
         }
@@ -68,6 +68,8 @@ export class FiniteSetOfValues extends Value {
             return this.map(lval=>mapper(lval, other));
         } else if (other instanceof FiniteSetOfValues) {
             return this.setProduct(other, mapper);
+        } else {
+            return other.product(this, mapper);
         }
     }
 
