@@ -48,7 +48,7 @@ gulp.task('test:instrument', ['compile'], function() {
 
 gulp.task('test:cover', ['test:instrument'], function() {
     return gulp.src('test/*.js', {read: false})
-        .pipe(mocha())
+        .pipe(mocha({timeout: 10000}))
         .pipe(istanbul.writeReports({
             reporters: ['json']
         }))
