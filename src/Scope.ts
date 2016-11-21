@@ -49,11 +49,9 @@ class Scope<T> {
     isCurrent(fd:FunctionDeclaration) {
         if (this.functionScope) {
             return this.parentExpression === fd;
-        } else if (this.parent) {
+        } else {
             return this.parent.isCurrent(fd);
         }
-        return false;
-
     }
 }
 
