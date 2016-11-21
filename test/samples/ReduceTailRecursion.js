@@ -7,3 +7,16 @@ function factorial(i, prod) {
 }
 
 factorial(3, 1);
+
+function noParam() {
+    return noParam();
+}
+noParam();
+
+function cannotReduce() {
+    cannotReduceInner();
+    function cannotReduceInner() {
+        return cannotReduce();
+    }
+}
+cannotReduce();

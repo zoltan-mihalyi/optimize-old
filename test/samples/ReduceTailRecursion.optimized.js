@@ -14,3 +14,20 @@ function factorial(i, prod) {
 }
 
 factorial(3, 1);
+
+function noParam() {
+    x:
+    while (1) {
+        continue x;
+        return;
+    }
+}
+noParam();
+
+function cannotReduce() {
+    cannotReduceInner();
+    function cannotReduceInner() {
+        return cannotReduce();
+    }
+}
+cannotReduce();

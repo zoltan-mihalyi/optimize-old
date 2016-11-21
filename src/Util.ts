@@ -108,6 +108,10 @@ export function isArrayExpression(e:Expression):e is ArrayExpression {
     return e.type === 'ArrayExpression';
 }
 
+export function isMemberExpression(e:Expression):e is MemberExpression {
+    return e.type === 'MemberExpression';
+}
+
 export function getValueInformation(e:Expression):Value {
     if (e.calculatedValue) {
         return e.calculatedValue;

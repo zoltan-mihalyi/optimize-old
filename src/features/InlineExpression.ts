@@ -10,7 +10,9 @@ import {
     isBlockStatement,
     isVariableDeclaration,
     isLoop,
-    isFunctionLike
+    isFunctionLike,
+    isMemberExpression,
+    isProgram
 } from "../Util";
 import {Value, unknown, KnownValue, ObjectValue, ObjectClass} from "../Value";
 import Scope = require("../Scope");
@@ -132,6 +134,11 @@ phase.before.onUpdateExpression((node:AstNode<UpdateExpression, Var>)=> {
 phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
     var parentExpression = node.parent.expression;
     var expression = node.expression;
+
+    if (isMemberExpression(parentExpression) && parentExpression.property === expression) {
+        return; //only property
+    }
+
     if (isVariableDeclarator(parentExpression) && parentExpression.id === expression) {
         var init = parentExpression.init || literal(void 0);
         handleAssignment(node, parentExpression.id, '=', init);
@@ -139,7 +146,7 @@ phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
     }
 
     if (!node.scope.hasInCurrentFunction(expression)) {
-        return;//another scope
+        return;//another scope or not defined
     }
 
     if (isUpdateExpression(parentExpression)) {
@@ -153,11 +160,9 @@ phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
 
     var variable = node.scope.get(expression);
 
-    if (variable) {
-        if (variable.writesFromFunctionOnly && !canBeModifiedInLoop(variable, node)) {
-            var value = variable.value;
-            node.setCalculatedValue(value);
-        }
+    if (variable.writesFromFunctionOnly && !canBeModifiedInLoop(variable, node)) {
+        var value = variable.value;
+        node.setCalculatedValue(value);
     }
 });
 
@@ -184,7 +189,7 @@ function getRunCount(node:AstNode<Expression,any>):RunCount {
         if (isBlockStatement(expression)) {
             continue;
         }
-        if (isFunctionLike(expression)) {
+        if (isFunctionLike(expression) || isProgram(expression)) {
             break;
         }
 

@@ -21,3 +21,6 @@ console.log("function");
 
 console.log(1 + a);
 console.log(2);
+
+console.log(-[]);
+console.log(-u);

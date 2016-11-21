@@ -43,3 +43,11 @@ if (function() {
     }) {
     console.log(13);
 }
+
+var x = 1;
+if (u) {
+    x = 0;
+}
+if (x) {
+    console.log(14);
+}

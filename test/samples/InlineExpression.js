@@ -97,3 +97,16 @@ function e() {
     }
 }
 e();
+
+function f() {
+    var y;
+    console.log(y);
+    console.log(u);
+    var x = 1;
+    u.x = 1;
+    u.y++
+    console.log(u.x);
+    x += [];
+    console.log(x);
+}
+f();

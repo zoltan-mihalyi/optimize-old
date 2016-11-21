@@ -14,7 +14,7 @@ feature.addPhase().before.onIfStatement((node:AstNode<IfStatement, any>)=> {
         var boolValue = value.map(value=> {
             if (value instanceof KnownValue) {
                 return new KnownValue(!!value.value);
-            } else if (value instanceof ObjectValue) {
+            } else { //ObjectValue
                 return new KnownValue(true);
             }
         });

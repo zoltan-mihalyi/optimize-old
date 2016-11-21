@@ -31,13 +31,13 @@ feature.addPhase().after.onUnaryExpression((node:AstNode<UnaryExpression, any>)=
         node.setCalculatedValue(valueInformation.map(value=> {
             if (value instanceof KnownValue) {
                 return new KnownValue(mapper(value.value));
-            } else if (value instanceof ObjectValue) {
+            } else { //ObjectValue
                 if (expression.operator === '!') {
                     return new KnownValue(false);
                 } else if (expression.operator === 'void') {
                     return new KnownValue(void 0);
                 } else if (expression.operator === 'typeof') {
-                    return new KnownValue(value.objectClass === ObjectClass.Function ? 'function' : 'object');
+                    return new KnownValue((value as ObjectValue).objectClass === ObjectClass.Function ? 'function' : 'object');
                 }
                 return unknown;
             }

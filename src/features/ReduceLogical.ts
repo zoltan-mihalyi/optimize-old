@@ -9,7 +9,6 @@ var feature:Feature<any> = new Feature<any>();
 feature.addPhase().after.onLogicalExpression((node:AstNode<LogicalExpression, any>)=> {
     var expression = node.expression;
     var leftValue = getValueInformation(expression.left);
-    var rightValue = getValueInformation(expression.right);
 
     if (leftValue) {
         var leftAsBoolean = leftValue.map(value=> {

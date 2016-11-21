@@ -21,3 +21,11 @@ if ([console.log(1)]) {
 
 console.log(12);
 console.log(13);
+
+var x = 1;
+if (u) {
+    x = 0;
+}
+if (x) {
+    console.log(14);
+}
