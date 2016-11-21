@@ -1,6 +1,6 @@
 import {Feature} from "../Feature";
 import {getValueInformation} from "../Util";
-import {KnownValue, unknown} from "../Value";
+import {KnownValue, unknown, ObjectValue, ObjectClass} from "../Value";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
@@ -31,11 +31,13 @@ feature.addPhase().after.onUnaryExpression((node:AstNode<UnaryExpression, any>)=
         node.setCalculatedValue(valueInformation.map(value=> {
             if (value instanceof KnownValue) {
                 return new KnownValue(mapper(value.value));
-            } else {
+            } else if (value instanceof ObjectValue) {
                 if (expression.operator === '!') {
                     return new KnownValue(false);
                 } else if (expression.operator === 'void') {
                     return new KnownValue(void 0);
+                } else if (expression.operator === 'typeof') {
+                    return new KnownValue(value.objectClass === ObjectClass.Function ? 'function' : 'object');
                 }
                 return unknown;
             }

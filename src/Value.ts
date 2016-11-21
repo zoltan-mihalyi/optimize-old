@@ -30,7 +30,14 @@ export class KnownValue extends SingleValue {
     }
 }
 
+export const enum ObjectClass{
+    Function, Object, Array
+}
+
 export class ObjectValue extends SingleValue {
+    constructor(public objectClass:ObjectClass) {
+        super();
+    }
 }
 
 export class FiniteSetOfValues extends Value {

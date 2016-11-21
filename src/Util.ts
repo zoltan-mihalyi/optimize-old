@@ -1,4 +1,4 @@
-import {KnownValue, Value, ObjectValue} from "./Value";
+import {KnownValue, Value, ObjectValue, ObjectClass} from "./Value";
 import AstNode = require("./AstNode");
 export function isLiteral(e:Expression):e is Literal {
     return e.type === 'Literal';
@@ -116,10 +116,10 @@ export function getValueInformation(e:Expression):Value {
         return new KnownValue(getLiteralLikeValue(e));
     }
     if (isArrayExpression(e)) {
-        return isClean(e) ? new ObjectValue() : null;
+        return isClean(e) ? new ObjectValue(ObjectClass.Array) : null;
     }
     if (isFunctionLike(e)) {
-        return new ObjectValue();
+        return new ObjectValue(ObjectClass.Function);
     }
     return null;
 }

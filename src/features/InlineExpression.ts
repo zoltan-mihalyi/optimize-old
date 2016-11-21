@@ -12,7 +12,7 @@ import {
     isLoop,
     isFunctionLike
 } from "../Util";
-import {Value, unknown, KnownValue, ObjectValue} from "../Value";
+import {Value, unknown, KnownValue, ObjectValue, ObjectClass} from "../Value";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
@@ -40,7 +40,7 @@ feature.addPhase().before.onVariableDeclarator((node:AstNode<VariableDeclarator,
 
 feature.addPhase().before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Var>)=> {
     node.scope.save(node.expression.id, {
-        value: new ObjectValue(),
+        value: new ObjectValue(ObjectClass.Function),
         writesFromFunctionOnly: true,
         writesInLoops: []
     }, false);
