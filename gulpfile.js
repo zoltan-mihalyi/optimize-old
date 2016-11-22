@@ -6,6 +6,7 @@ var clean = require('gulp-clean');
 var sourcemaps = require('gulp-sourcemaps');
 var istanbul = require('gulp-istanbul');
 var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
+var through2 = require('through2');
 
 var tsProject = ts.createProject('tsconfig.json');
 
@@ -44,6 +45,17 @@ gulp.task('test:instrument', ['compile'], function() {
     return gulp.src('dist/**/*.js')
         .pipe(istanbul())
         .pipe(istanbul.hookRequire());
+});
+
+gulp.task('self-optimize', ['compile'], function() {
+    var optimize=require('./dist/optimize');
+    return gulp.src('dist/**/*.js')
+        .pipe(through2.obj(function(file, encoding, done) {
+            file.contents = new Buffer(optimize(file.contents.toString('UTF-8')));
+            this.push(file);
+            done();
+        }))
+        .pipe(gulp.dest(tsProject.options.outDir));
 });
 
 gulp.task('test:cover', ['test:instrument'], function() {
