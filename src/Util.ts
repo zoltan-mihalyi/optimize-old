@@ -128,7 +128,7 @@ export function getValueInformation(e:Expression):Value {
     return null;
 }
 
-function isClean(e:Expression) {
+export function isClean(e:Expression) {
     if (isLiteralLike(e)) {
         return true;
     }
@@ -143,8 +143,8 @@ function isClean(e:Expression) {
     }
 }
 
-export function isLiteralLike(e:Expression):boolean {
-    return isLiteral(e) || (isUnaryExpression(e) && e.operator === 'void' && isLiteral(e.argument));
+function isLiteralLike(e:Expression):boolean {
+    return isLiteral(e) || (isUnaryExpression(e) && e.operator === 'void' && isClean(e.argument));
 }
 
 export function isLoop(e) {

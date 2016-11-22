@@ -64,6 +64,10 @@ class FeatureStore<T> {
         this.on('IfStatement', callback);
     }
 
+    onProgram(callback:Callback<Program,T>) {
+        this.on('Program', callback);
+    }
+
     private on(type:string, callback:Callback<Expression,T>) {
         if (!this.store[type]) {
             this.store[type] = [callback];

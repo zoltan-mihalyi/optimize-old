@@ -12,7 +12,8 @@ import {
     isLoop,
     isFunctionLike,
     isMemberExpression,
-    isProgram
+    isProgram,
+    identifier
 } from "../Util";
 import {Value, unknown, KnownValue, ObjectValue, ObjectClass} from "../Value";
 import Scope = require("../Scope");
@@ -30,7 +31,22 @@ interface Var {
     writesInLoops:Expression[];
 }
 
-feature.addPhase().before.onVariableDeclarator((node:AstNode<VariableDeclarator, Var>)=> {
+var declarationPhase = feature.addPhase();
+declarationPhase.before.onProgram((node:AstNode<Program, Var>)=> {
+    saveApi(node, 'Math', ObjectClass.Object);
+    saveApi(node, 'Date', ObjectClass.Function);
+    //TODO
+});
+
+function saveApi(node:AstNode<any,Var>, name:string, type:ObjectClass) {
+    node.scope.save(identifier(name), {
+        value: new ObjectValue(type),
+        writesFromFunctionOnly: true,
+        writesInLoops: []
+    }, false);
+}
+
+declarationPhase.before.onVariableDeclarator((node:AstNode<VariableDeclarator, Var>)=> {
     var expression = node.expression;
     var declaration = node.parent.expression as VariableDeclaration;
     node.scope.save(expression.id, {
@@ -40,7 +56,7 @@ feature.addPhase().before.onVariableDeclarator((node:AstNode<VariableDeclarator,
     }, declaration.kind === 'let');
 });
 
-feature.addPhase().before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Var>)=> {
+declarationPhase.before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Var>)=> {
     node.scope.save(node.expression.id, {
         value: new ObjectValue(ObjectClass.Function),
         writesFromFunctionOnly: true,
@@ -79,7 +95,7 @@ feature.addPhase().before.onAssignmentExpression((node:AstNode<AssignmentExpress
     setWriteInfo(node.expression.left, node);
 });
 
-var phase = feature.addPhase();
+var substitutionPhase = feature.addPhase();
 
 function handleAssignment(node:AstNode<any, Var>, id:Identifier, operator:string, valueExpression:Expression) {
     var variable = node.scope.get(id);
@@ -116,14 +132,14 @@ function handleAssignment(node:AstNode<any, Var>, id:Identifier, operator:string
     }
 }
 
-phase.after.onAssignmentExpression((node:AstNode<AssignmentExpression, Var>)=> {
+substitutionPhase.after.onAssignmentExpression((node:AstNode<AssignmentExpression, Var>)=> {
     var left = node.expression.left;
     if (isIdentifier(left)) {
         handleAssignment(node, left, node.expression.operator, node.expression.right);
     }
 });
 
-phase.before.onUpdateExpression((node:AstNode<UpdateExpression, Var>)=> {
+substitutionPhase.before.onUpdateExpression((node:AstNode<UpdateExpression, Var>)=> {
     var arg = node.expression.argument;
     if (isIdentifier(arg)) {
         var resolvedOperator = node.expression.operator[0] + '=';
@@ -131,7 +147,7 @@ phase.before.onUpdateExpression((node:AstNode<UpdateExpression, Var>)=> {
     }
 });
 
-phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
+substitutionPhase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
     var parentExpression = node.parent.expression;
     var expression = node.expression;
 
@@ -156,6 +172,10 @@ phase.before.onIdentifier((node:AstNode<Identifier,Var>)=> {
         if (parentExpression.left === expression) {
             return; //LHS
         }
+    }
+
+    if (isExpressionStatement(parentExpression)) {
+        node.parent.remove();
     }
 
     var variable = node.scope.get(expression);

@@ -2,4 +2,9 @@
 1 + 1;
 Math.random;
 1 + console.log();
+[1, 2];
 Math;
+var xxx = u;
+xxx;
+void Date;
+void Datex;
