@@ -53,6 +53,17 @@ class Scope<T> {
             return this.parent.isCurrent(fd);
         }
     }
+
+    isGlobal(id:Identifier) {
+        if (!this.parent) {
+            return true;
+        }
+        if (this.hasInCurrentBlock(id)) {
+            return false;
+        } else {
+            return this.parent.isGlobal(id);
+        }
+    }
 }
 
 export = Scope;

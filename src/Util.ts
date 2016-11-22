@@ -143,6 +143,10 @@ export function isClean(e:Expression) {
     }
 }
 
+export function isRealIdentifier(expression:Expression, parentExpression:Expression):boolean{
+    return !(isMemberExpression(parentExpression) && parentExpression.property === expression);
+}
+
 function isLiteralLike(e:Expression):boolean {
     return isLiteral(e) || (isUnaryExpression(e) && e.operator === 'void' && isClean(e.argument));
 }
@@ -156,8 +160,6 @@ function getLiteralLikeValue(e:Expression):boolean {
         return e.value;
     } else if (isUnaryExpression(e) && e.operator === 'void') {
         return void 0;
-    } else {
-        throw new Error('Cannot determine value');
     }
 }
 

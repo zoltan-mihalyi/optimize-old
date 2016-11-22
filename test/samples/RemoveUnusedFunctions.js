@@ -17,3 +17,12 @@ function recursive() {
 
 (function immediatelyInvoked() {
 })();
+
+function usedOnlyAsPropertyGlobal(){}
+window.usedOnlyAsPropertyGlobal();
+
+(function(){
+    function fn(){}
+
+    window.fn();
+})();

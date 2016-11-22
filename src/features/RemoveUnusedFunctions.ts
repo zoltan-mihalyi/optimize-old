@@ -1,4 +1,5 @@
 import {Feature} from "../Feature";
+import {isRealIdentifier} from "../Util";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
@@ -18,7 +19,15 @@ feature.addPhase().before.onFunctionDeclaration((node:AstNode<FunctionDeclaratio
 
 feature.addPhase().before.onIdentifier((node:AstNode<Identifier,Counter>) => {
     var saved = node.scope.get(node.expression);
-    if (saved && !node.scope.inside(saved.functionDeclaration)) {
+    if (!saved) {
+        return;
+    }
+
+    if (!isRealIdentifier(node.expression, node.parent.expression) && !node.scope.isGlobal(node.expression)) {
+        return;
+    }
+
+    if (!node.scope.inside(saved.functionDeclaration)) {
         saved.usages++;
     }
 });
