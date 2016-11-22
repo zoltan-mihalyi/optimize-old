@@ -19,6 +19,9 @@ if ([console.log(1)]) {
     console.log(11);
 }
 
+function fx() {
+}
+
 console.log(12);
 console.log(13);
 

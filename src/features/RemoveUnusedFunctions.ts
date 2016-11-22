@@ -34,7 +34,7 @@ feature.addPhase().before.onIdentifier((node:AstNode<Identifier,Counter>) => {
         return;
     }
 
-    if (!isRealIdentifier(node.expression, node.parent.expression) && !node.scope.isGlobal(node.expression)) {
+    if (!isRealIdentifier(node.expression, node.parent.expression)) {
         return;
     }
 
@@ -48,6 +48,10 @@ function removeIfUnused(node:AstNode<FunctionDeclaration|VariableDeclarator, Cou
     var saved = node.scope.get(node.expression.id);
     if (saved.usages === 1) {
         if (saved.init && !isClean(saved.init)) {
+            return;
+        }
+
+        if (node.scope.isGlobal(node.expression.id)) {
             return;
         }
 
