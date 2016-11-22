@@ -8,7 +8,7 @@ used();
 
 usedBeforeDeclaration();
 
-function usedBeforeDeclaration(){
+function usedBeforeDeclaration() {
 }
 
 function recursive() {
@@ -18,11 +18,17 @@ function recursive() {
 (function immediatelyInvoked() {
 })();
 
-function usedOnlyAsPropertyGlobal(){}
+function usedOnlyAsPropertyGlobal() {
+}
 window.usedOnlyAsPropertyGlobal();
 
-(function(){
-    function fn(){}
+(function() {
+    function fn() {
+    }
 
     window.fn();
 })();
+
+var x = console.log('x')
+
+var y;

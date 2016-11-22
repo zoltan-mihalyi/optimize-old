@@ -5,15 +5,18 @@ used();
 
 usedBeforeDeclaration();
 
-function usedBeforeDeclaration(){
+function usedBeforeDeclaration() {
 }
 
 (function immediatelyInvoked() {
 })();
 
-function usedOnlyAsPropertyGlobal(){}
+function usedOnlyAsPropertyGlobal() {
+}
 window.usedOnlyAsPropertyGlobal();
 
-(function(){
+(function() {
     window.fn();
 })();
+
+var x = console.log('x')

@@ -1,16 +1,27 @@
 import {Feature} from "../Feature";
-import {isRealIdentifier} from "../Util";
+import {isRealIdentifier, isVariableDeclarator, isClean} from "../Util";
 import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
 interface Counter {
-    functionDeclaration:FunctionDeclaration;
+    functionDeclaration?:FunctionDeclaration;
+    init?:Expression;
     usages:number;
 }
 
 var feature:Feature<Counter> = new Feature<Counter>();
 
-feature.addPhase().before.onFunctionDeclaration((node:AstNode<FunctionDeclaration,Counter>) => {
+var declarationPhase = feature.addPhase();
+declarationPhase.before.onVariableDeclarator((node:AstNode<VariableDeclarator, Counter>) => {
+    var expression = node.expression;
+    var declaration = node.parent.expression as VariableDeclaration;
+    node.scope.save(expression.id, {
+        usages: 0,
+        init: expression.init
+    }, declaration.kind === 'let');
+});
+
+declarationPhase.before.onFunctionDeclaration((node:AstNode<FunctionDeclaration,Counter>) => {
     node.scope.save(node.expression.id, {
         functionDeclaration: node.expression,
         usages: 0
@@ -27,16 +38,29 @@ feature.addPhase().before.onIdentifier((node:AstNode<Identifier,Counter>) => {
         return;
     }
 
-    if (!node.scope.inside(saved.functionDeclaration)) {
-        saved.usages++;
+    if (saved.functionDeclaration && node.scope.inside(saved.functionDeclaration)) {
+        return;
     }
+    saved.usages++;
 });
 
-feature.addPhase().before.onFunctionDeclaration((node:AstNode<FunctionDeclaration,Counter>) => {
+function removeIfUnused(node:AstNode<FunctionDeclaration|VariableDeclarator, Counter>) {
     var saved = node.scope.get(node.expression.id);
     if (saved.usages === 1) {
-        node.remove();
+        if (saved.init && !isClean(saved.init)) {
+            return;
+        }
+
+        if (isVariableDeclarator(node.expression) && (node.parent.expression as VariableDeclaration).declarations.length === 1) {
+            node.parent.remove();
+        } else {
+            node.remove();
+        }
     }
-});
+}
+
+var removePhase = feature.addPhase();
+removePhase.before.onFunctionDeclaration(removeIfUnused);
+removePhase.before.onVariableDeclarator(removeIfUnused);
 
 export = feature;

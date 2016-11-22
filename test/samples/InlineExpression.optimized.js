@@ -2,7 +2,6 @@ function a() {
     var w = 2;
     var x = 2;
     var y = 2;
-    var z = 2;
     b();
     c();
     console.log(w);
@@ -85,7 +84,6 @@ d();
 
 function e() {
     var x = 31;
-    var y = 42;
 
     while (u) {
         console.log(x);
@@ -96,7 +94,6 @@ function e() {
 e();
 
 function f() {
-    var y;
     console.log(void 0);
     console.log(u);
     var x = 1;
