@@ -24,7 +24,7 @@ function a() {
 a();
 
 function b() {
-    var x = 1, y = z, z = 1;
+    var x = 1;
     console.log(1);
 
     u || (x = 2);

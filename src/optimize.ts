@@ -47,6 +47,9 @@ class Walker {
                         if (typeof  obj.type === 'string') {
                             var lengthBefore = sub.length;
                             this.walkInner(new AstNode(obj, astNode, sub, this.scopeMap), phase);
+                            if(astNode.replaced){
+                                break;
+                            }
                             j -= lengthBefore - sub.length;
                         }
                     }

@@ -19,7 +19,7 @@
     (function immediatelyInvoked() {
     })();
 
-    function sameAsMethod(){
+    function sameAsMethod() {
     }
 
     window.sameAsMethod();
@@ -31,6 +31,7 @@
         window.fn();
     })();
 
+    let a = u(), b = u(), c = a;
     var x = console.log('x');
 
     var y;

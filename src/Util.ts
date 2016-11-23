@@ -143,7 +143,7 @@ export function isClean(e:Expression) {
     }
 }
 
-export function isRealIdentifier(expression:Expression, parentExpression:Expression):boolean{
+export function isRealIdentifier(expression:Expression, parentExpression:Expression):boolean {
     return !(isMemberExpression(parentExpression) && parentExpression.property === expression);
 }
 
@@ -239,11 +239,18 @@ export function declarator(name:string, init?:Expression):VariableDeclarator {
     };
 }
 
-export function declaration(declarations:VariableDeclarator[]):VariableDeclaration {
+export function declaration(declarations:VariableDeclarator[], kind?:'var'|'let'|'const'):VariableDeclaration {
     return {
         type: 'VariableDeclaration',
-        kind: 'var',
+        kind: kind || 'var',
         declarations: declarations
+    };
+}
+
+export function expressionStatement(expression:Expression):ExpressionStatement {
+    return {
+        type: 'ExpressionStatement',
+        expression: expression
     };
 }
 

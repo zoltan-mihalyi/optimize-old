@@ -18,7 +18,9 @@
         window.fn();
     })();
 
-    var x = console.log('x');
+    u();
+    u();
+    console.log('x');
 })();
 
 var global;

@@ -4,6 +4,7 @@ import {Value, KnownValue, FiniteSetOfValues, ObjectValue} from "./Value";
 class AstNode<T extends Expression, S> {
     scope:Scope<S>;
     changed:boolean = false;
+    replaced:boolean = false;
 
     constructor(public expression:T, public parent:AstNode<any,S>, private parentObject:any, scopeMap:Map<Expression, Scope<any>>, private property?:string,) {
         if (isBlockStatementLike(expression)) {
@@ -36,6 +37,7 @@ class AstNode<T extends Expression, S> {
             }
             this.parentObject[this.property] = expressions[0];
         }
+        this.replaced = true;
         this.markChanged();
     }
 
