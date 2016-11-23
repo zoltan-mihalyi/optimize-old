@@ -1,7 +1,7 @@
 import recast = require('recast');
 import removeExpressionStatements = require('./features/RemoveExpressionStatements');
 import reduceTailRecursion = require('./features/ReduceTailRecursion');
-import removeUnusedFunctions = require('./features/RemoveUnusedFunctions');
+import removeUnused = require('./features/RemoveUnused');
 import inlineExpression = require('./features/InlineExpression');
 import calculateArithmetic = require('./features/CalculateArithmetic');
 import reduceConditionals = require('./features/ReduceConditionals');
@@ -12,7 +12,7 @@ import AstNode = require("./AstNode");
 
 var features:Feature<any>[] = [
     removeExpressionStatements,
-    removeUnusedFunctions,
+    removeUnused,
     reduceTailRecursion,
     inlineExpression,
     calculateArithmetic,
