@@ -21,6 +21,12 @@
     u();
     u();
     console.log('x');
+
+    var d = {};
+
+    console.log(()=>{
+        d.x
+    });
 })();
 
 var global;

@@ -14,7 +14,7 @@ function a() {
         u || x++;
     }
 
-    c = ()=> {
+    c = () => {
         w = 3;
     };
 
@@ -110,3 +110,17 @@ function f() {
     console.log(x);
 }
 f();
+
+function g() {
+    var x = 1;
+    if (u) {
+        x = 2;
+        console.log(x);
+    }
+    console.log(x);
+    console.log(typeof x);
+    if (x) {
+        console.log('x');
+    }
+}
+g();

@@ -13,7 +13,7 @@ function a() {
         u || x++;
     }
 
-    c = ()=> {
+    c = () => {
         w = 3;
     };
 
@@ -33,23 +33,17 @@ function b() {
     x *= 3;
     console.log(x);
 
-    x = 3;
     console.log(3);
 
-    x++;
-    x = 8;
     console.log(8);
 
-    console.log(q);
-    var q = 2;
+    console.log(void 0);
 }
 b();
 
 function c() {
-    var x = 1;
     var y = 1;
     if (u) {
-        x = '1'
         y++;
     }
     console.log("1");
@@ -104,3 +98,15 @@ function f() {
     console.log(x);
 }
 f();
+
+function g() {
+    var x = 1;
+    if (u) {
+        x = 2;
+        console.log(2);
+    }
+    console.log(x);
+    console.log("number");
+    console.log('x');
+}
+g();

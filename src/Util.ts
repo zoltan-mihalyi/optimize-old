@@ -112,6 +112,10 @@ export function isMemberExpression(e:Expression):e is MemberExpression {
     return e.type === 'MemberExpression';
 }
 
+export function isIfStatement(e:Expression):e is IfStatement {
+    return e.type === 'IfStatement';
+}
+
 export function getValueInformation(e:Expression):Value {
     if (e.calculatedValue) {
         return e.calculatedValue;
@@ -266,5 +270,14 @@ export function assignment(left:Expression, right:Expression):ExpressionStatemen
     return {
         type: 'ExpressionStatement',
         expression: assignment
+    };
+}
+
+export function binaryExpression(operator:string, left:Expression, right:Expression):BinaryExpression {
+    return {
+        type: 'BinaryExpression',
+        operator: operator,
+        left: left,
+        right: right
     };
 }

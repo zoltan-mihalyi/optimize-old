@@ -35,6 +35,12 @@
     var x = console.log('x');
 
     var y;
+
+    var d = {};
+
+    console.log(()=>{
+        d.x
+    });
 })();
 
 var global;

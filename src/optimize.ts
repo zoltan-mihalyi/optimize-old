@@ -1,23 +1,21 @@
 import recast = require('recast');
 import removeExpressionStatements = require('./features/RemoveExpressionStatements');
 import reduceTailRecursion = require('./features/ReduceTailRecursion');
-import removeUnused = require('./features/RemoveUnused');
-import inlineExpression = require('./features/InlineExpression');
 import calculateArithmetic = require('./features/CalculateArithmetic');
 import reduceConditionals = require('./features/ReduceConditionals');
 import reduceLogical = require('./features/ReduceLogical');
+import valueTracker = require('./features/ValueTracker/ValueTracker');
 import {Feature, Phase} from "./Feature";
 import Scope = require("./Scope");
 import AstNode = require("./AstNode");
 
-var features:Feature<any>[] = [
+const features:Feature<any>[] = [
     removeExpressionStatements,
-    removeUnused,
     reduceTailRecursion,
-    inlineExpression,
     calculateArithmetic,
     reduceConditionals,
-    reduceLogical
+    reduceLogical,
+    valueTracker
 ];
 
 class Walker {

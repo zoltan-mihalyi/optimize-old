@@ -8,10 +8,18 @@ class Scope<T> {
     }
 
     save(id:Identifier, object:T, letExpression:boolean):void {
+        this.getScope(letExpression).store[id.name] = object;
+    }
+
+    getScope(letExpression:boolean):Scope<T> {
         if (!letExpression && !this.functionScope) {
-            this.parent.save(id, object, letExpression);
+            return this.parent.getScope(letExpression);
         }
-        this.store[id.name] = object;
+        return this;
+    }
+
+    getExpression() {
+        return this.parentExpression;
     }
 
     get(id:Identifier):T {
