@@ -80,6 +80,11 @@ function d() {
     x = 1;
     for (var i of []) {
         x++;
+        console.log(i);
+    }
+
+    for (var j in u) {
+        console.log(j);
     }
 
     console.log(x < 5);

@@ -32,9 +32,6 @@ export = function (feature:Feature<Variable>) {
         }
 
         const parentExpression = node.parent.expression as VariableDeclaration;
-        if (isLoop(node.parent.parent.expression)) { //for(var i in x){}
-            return;
-        }
         const index = parentExpression.declarations.indexOf(node.expression as VariableDeclarator);
         const before = parentExpression.declarations.slice(0, index);
         const after = parentExpression.declarations.slice(index + 1);
