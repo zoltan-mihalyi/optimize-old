@@ -129,3 +129,18 @@ function g() {
     }
 }
 g();
+
+function h() {
+    var x = (function() {
+        console.log(x);
+    });
+
+    var y = 1;
+    console.log(getY());
+    y = 2;
+
+    function getY() {
+        return y;
+    }
+}
+h();

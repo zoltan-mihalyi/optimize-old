@@ -69,10 +69,14 @@ export = function (feature:Feature<Variable>) {
         variable.merge(getScopes(node));
         const topValue = variable.topValue();
         if (variable.functionDeclaration && node.scope.inside(variable.functionDeclaration)) {
-            return;//another scope
+            return; //recursion
         }
 
         variable.markUsed();
+
+        if (!node.scope.hasInCurrentFunction(expression)) {
+            return;
+        }
 
 
         if (isUpdateExpression(parentExpression)) {
