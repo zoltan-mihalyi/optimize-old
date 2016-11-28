@@ -40,60 +40,68 @@ export = function (feature:Feature<Variable>) {
     });
 
     valueTrackingPhase.after.onIdentifier((node:AstNode<Identifier, Variable>) => {
-        const parentExpression = node.parent.expression;
         const expression = node.expression;
+        const parentExpression = node.parent.expression;
 
-        if (isMemberExpression(parentExpression) && parentExpression.property === expression) {
-            return; //only property
-        }
-
-        if (isVariableDeclarator(parentExpression) && parentExpression.id === expression) {
-            return; //just initializing
-        }
-
-        if (isFunctionLike(parentExpression)) {
-            return; //function declaration
-        }
-
-        if (isAssignmentExpression(parentExpression)) {
-            if (parentExpression.left === expression) {
-                return; //LHS
-            }
+        if (!isRealUsage(expression, parentExpression)) {
+            return;
         }
 
         const variable = node.scope.get(expression);
         if (!variable) {
             return;
         }
-
         variable.merge(getScopes(node));
         const topValue = variable.topValue();
         if (variable.functionDeclaration && node.scope.inside(variable.functionDeclaration)) {
             return; //recursion
         }
-
-        variable.markUsed();
-
-        if (!node.scope.hasInCurrentFunction(expression)) {
-            return;
-        }
-
-
-        if (isUpdateExpression(parentExpression)) {
-            return;
-        }
-
         if (isExpressionStatement(parentExpression)) {
             node.parent.remove();
             return;
         }
+        variable.markUsed();
 
-        if (variable.isSafe() && !variable.canBeModifiedInLoop(node)) {
+        if (canSubstitute(node, variable)) {
             node.setCalculatedValue(topValue.value);
         }
     });
 }
 
+function canSubstitute(node:AstNode<Identifier, Variable>, variable:Variable):boolean {
+    const expression = node.expression;
+    const parentExpression = node.parent.expression;
+    if (!node.scope.hasInCurrentFunction(expression)) {
+        return false;
+    }
+
+    if (isUpdateExpression(parentExpression)) {
+        return false;
+    }
+
+    return variable.isSafe() && !variable.canBeModifiedInLoop(node);
+}
+
+function isRealUsage(identifier:Identifier, parentExpression:Expression) {
+    if (isMemberExpression(parentExpression) && parentExpression.property === identifier) {
+        return false; //only property
+    }
+
+    if (isVariableDeclarator(parentExpression) && parentExpression.id === identifier) {
+        return false; //just initializing
+    }
+
+    if (isFunctionLike(parentExpression)) {
+        return false; //function declaration
+    }
+
+    if (isAssignmentExpression(parentExpression)) {
+        if (parentExpression.left === identifier) {
+            return false; //LHS
+        }
+    }
+    return true;
+}
 
 function handleAssignment(node:AstNode<Expression, Variable>, id:Identifier, operator:string, value:Expression) {
     if (!node.scope.hasInCurrentFunction(id)) {
