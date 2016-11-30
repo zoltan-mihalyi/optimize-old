@@ -21,13 +21,14 @@ export = function (feature:Feature<Variable>) {
     let valueTrackingPhase = feature.addPhase();
 
     valueTrackingPhase.after.onVariableDeclarator((node:AstNode<VariableDeclarator, Variable>) => {
-        handleAssignment(node, node.expression.id, '=', node.expression.init || literal(void 0));
+        const init = node.expression.init || literal(void 0);
+        handleAssignment(node, init, node.expression.id, '=', init);
     });
 
     valueTrackingPhase.after.onAssignmentExpression((node:AstNode<AssignmentExpression, Variable>) => {
         const left = node.expression.left;
         if (isIdentifier(left)) {
-            handleAssignment(node, left, node.expression.operator, node.expression.right);
+            handleAssignment(node, node.expression, left, node.expression.operator, node.expression.right);
         }
     });
 
@@ -35,7 +36,7 @@ export = function (feature:Feature<Variable>) {
         const arg = node.expression.argument;
         if (isIdentifier(arg)) {
             const resolvedOperator = node.expression.operator[0] + '=';
-            handleAssignment(node, arg, resolvedOperator, literal(1));
+            handleAssignment(node, node.expression, arg, resolvedOperator, literal(1));
         }
     });
 
@@ -60,7 +61,7 @@ export = function (feature:Feature<Variable>) {
             node.parent.remove();
             return;
         }
-        variable.markUsed();
+        variable.markUsed(node);
 
         if (canSubstitute(node, variable)) {
             node.setCalculatedValue(topValue.value);
@@ -79,7 +80,7 @@ function canSubstitute(node:AstNode<Identifier, Variable>, variable:Variable):bo
         return false;
     }
 
-    return variable.isSafe() && !variable.canBeModifiedInLoop(node);
+    return variable.isSafe(true) && !variable.canBeModifiedInLoop(node);
 }
 
 function isRealUsage(identifier:Identifier, parentExpression:Expression) {
@@ -103,7 +104,7 @@ function isRealUsage(identifier:Identifier, parentExpression:Expression) {
     return true;
 }
 
-function handleAssignment(node:AstNode<Expression, Variable>, id:Identifier, operator:string, value:Expression) {
+function handleAssignment(node:AstNode<Expression, Variable>, source:Expression, id:Identifier, operator:string, value:Expression) {
     if (!node.scope.hasInCurrentFunction(id)) {
         return;
     }
@@ -115,12 +116,12 @@ function handleAssignment(node:AstNode<Expression, Variable>, id:Identifier, ope
 
     const topValue = variable.topValue();
 
-    const valueInfo = getValueInformation(value) || unknown;
     let newValue:Value;
 
     if (variable.canBeModifiedInLoop(node)) {
         newValue = unknown;
     } else {
+        const valueInfo = getValueInformation(value) || unknown;
         if (operator === '=') {
             newValue = valueInfo;
         } else {
@@ -134,7 +135,7 @@ function handleAssignment(node:AstNode<Expression, Variable>, id:Identifier, ope
         }
     }
 
-    variable.updateValue(myTopScope, node.expression, newValue);
+    variable.updateValue(myTopScope, source, newValue, operator === '=');
 }
 
 

@@ -4,6 +4,7 @@ import {Value} from "../../Value";
 import {isFunctionLike, isLoop} from "../../Util";
 class Variable {
     private writesFromFunctionOnly:boolean = true;
+    private accessFromFunctionOnly:boolean = true;
     private writesInLoops:Expression[] = [];
     private values:LocalValue[] = [];
     private usedSources:Expression[] = [];
@@ -30,6 +31,7 @@ class Variable {
 
         if (!node.scope.hasInCurrentFunction(modified)) {
             this.writesFromFunctionOnly = false;
+            this.accessFromFunctionOnly = false;
         }
     }
 
@@ -58,7 +60,7 @@ class Variable {
         return this.values[this.values.length - 1];
     }
 
-    markUsed() {
+    markUsed(node:AstNode<Identifier, any>) {
         const sources = this.topValue().sources;
         for (let i = 0; i < sources.length; i++) {
             const obj = sources[i];
@@ -66,10 +68,14 @@ class Variable {
                 this.usedSources.push(obj);
             }
         }
+
+        if (!node.scope.hasInCurrentFunction(node.expression)) {
+            this.accessFromFunctionOnly = false;
+        }
     }
 
-    isSafe():boolean {
-        return this.writesFromFunctionOnly;
+    isSafe(writeOnly:boolean):boolean {
+        return writeOnly ? this.writesFromFunctionOnly : this.accessFromFunctionOnly;
     }
 
     canBeModifiedInLoop(node:AstNode<Expression,any>):boolean {
@@ -87,10 +93,14 @@ class Variable {
         return this.usedSources.indexOf(expression) !== -1
     }
 
-    updateValue(scope:Expression, expression:Expression, value:Value) {
+    updateValue(scope:Expression, expression:Expression, value:Value, replace:boolean) {
         let topValue = this.topValue();
         if (topValue.scope === scope) {
-            topValue.sources.push(expression);
+            if (replace) {
+                topValue.sources = [topValue.sources[0], expression];
+            } else {
+                topValue.sources.push(expression);
+            }
             topValue.value = value;
         } else {
             this.values.push({
