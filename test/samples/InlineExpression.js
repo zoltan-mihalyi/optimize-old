@@ -43,6 +43,14 @@ function b() {
 
     console.log(q);
     var q = 2;
+
+    let r;
+    console.log(r);
+    r = 2;
+    console.log(r);
+
+    console.log(s);
+    let s = 2;
 }
 b();
 

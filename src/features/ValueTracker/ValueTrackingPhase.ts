@@ -10,8 +10,8 @@ import {
     isExpressionStatement,
     isIdentifier,
     literal,
-    isMemberExpression,
-    isVariableDeclarator
+    isVariableDeclarator,
+    isRealIdentifier
 } from "../../Util";
 import {unknown, KnownValue, Value} from "../../Value";
 import AstNode = require("../../AstNode");
@@ -84,7 +84,7 @@ function canSubstitute(node:AstNode<Identifier, Variable>, variable:Variable):bo
 }
 
 function isRealUsage(identifier:Identifier, parentExpression:Expression) {
-    if (isMemberExpression(parentExpression) && parentExpression.property === identifier) {
+    if (!isRealIdentifier(identifier, parentExpression)) {
         return false; //only property
     }
 

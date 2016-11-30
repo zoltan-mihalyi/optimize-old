@@ -38,6 +38,11 @@ function b() {
     console.log(8);
 
     console.log(void 0);
+    console.log(void 0);
+    console.log(2);
+
+    console.log(s);
+    let s;
 }
 b();
 

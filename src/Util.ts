@@ -108,7 +108,7 @@ export function isArrayExpression(e:Expression):e is ArrayExpression {
     return e.type === 'ArrayExpression';
 }
 
-export function isMemberExpression(e:Expression):e is MemberExpression {
+function isMemberExpression(e:Expression):e is MemberExpression {
     return e.type === 'MemberExpression';
 }
 
@@ -165,6 +165,10 @@ function getLiteralLikeValue(e:Expression):boolean {
     } else if (isUnaryExpression(e) && e.operator === 'void') {
         return void 0;
     }
+}
+
+export function isBlockScoped (node:AstNode<VariableDeclarator, any>) {
+    return (node.parent.expression as VariableDeclaration).kind !== 'var';
 }
 
 export function returnStatement(argument?:Expression):ReturnStatement {

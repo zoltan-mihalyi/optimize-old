@@ -7,8 +7,8 @@ class Scope<T> {
         this.functionScope = parent === null || isFunctionLike(parentExpression);
     }
 
-    save(id:Identifier, object:T, letExpression:boolean):void {
-        this.getScope(letExpression).store[id.name] = object;
+    save(id:Identifier, object:T, blockScoped:boolean):void {
+        this.getScope(blockScoped).store[id.name] = object;
     }
 
     getScope(letExpression:boolean):Scope<T> {

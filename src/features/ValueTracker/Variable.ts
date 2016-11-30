@@ -9,9 +9,9 @@ class Variable {
     private values:LocalValue[] = [];
     private usedSources:Expression[] = [];
 
-    constructor(node:AstNode<Expression,any>, letExpression:boolean, value:Value, public functionDeclaration?:FunctionDeclaration) {
+    constructor(node:AstNode<Expression,any>, blockScoped:boolean, value:Value, public functionDeclaration?:FunctionDeclaration) {
         this.values.push({
-            scope: node.scope.getScope(letExpression).getExpression(),
+            scope: node.scope.getScope(blockScoped).getExpression(),
             sources: [node.expression],
             value: value
         });

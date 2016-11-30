@@ -1,6 +1,6 @@
 import {Feature} from "../../Feature";
-import {ObjectClass, ObjectValue, KnownValue} from "../../Value";
-import {identifier} from "../../Util";
+import {ObjectClass, ObjectValue, KnownValue, unknown} from "../../Value";
+import {identifier, isBlockScoped} from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
 
@@ -13,9 +13,9 @@ export = function (feature:Feature<Variable>):void {
         //TODO
     });
 
-    declarationPhase.before.onVariableDeclarator((node:AstNode<VariableDeclarator, Variable>) => { //todo let works differently
-        let letExpression = (node.parent.expression as VariableDeclaration).kind === 'let';
-        node.scope.save(node.expression.id, new Variable(node, letExpression, new KnownValue(void 0)), letExpression);
+    declarationPhase.before.onVariableDeclarator((node:AstNode<VariableDeclarator, Variable>) => {
+        let blockScoped = isBlockScoped(node);
+        node.scope.save(node.expression.id, new Variable(node, blockScoped, blockScoped ? unknown : new KnownValue(void 0)), blockScoped);
     });
 
     declarationPhase.before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Variable>) => {
