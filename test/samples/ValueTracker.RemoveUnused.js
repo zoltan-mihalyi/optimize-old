@@ -1,4 +1,19 @@
 (function() {
+    var x = 1;
+    x = u();
+    console.log(x)
+
+    var y = 1;
+    y = 2;
+    y = u();
+    console.log(y)
+
+    var z = u();
+    z++;
+    console.log(z)
+})();
+
+(function() {
     function unused() {
     }
 
