@@ -1,5 +1,13 @@
 import {Feature} from "../../Feature";
-import {isIdentifier, binaryExpression, literal, declaration, expressionStatement, declarator} from "../../Util";
+import {
+    isIdentifier,
+    binaryExpression,
+    literal,
+    declaration,
+    expressionStatement,
+    declarator,
+    isLiteral
+} from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
 export = function (feature:Feature<Variable>) {
@@ -38,11 +46,20 @@ export = function (feature:Feature<Variable>) {
         const after = parentExpression.declarations.slice(index + 1);
 
         if (!canRemove(node, node.expression, id)) {
-            if (parentExpression.declarations.length === 1 && !node.expression.init) {
+            let newInit:Expression = null;
+            if (parentExpression.kind === 'const') {
+                if (isLiteral(node.expression.init) && node.expression.init.value === 0) {
+                    newInit = node.expression.init;
+                } else {
+                    newInit = literal(0);
+                }
+            }
+
+            if (parentExpression.declarations.length === 1 && node.expression.init === newInit) {
                 return; //disables replacing by itself
             }
 
-            before.push(declarator(id.name));
+            before.push(declarator(id.name, newInit));
         }
 
         const result:Expression[] = [];
