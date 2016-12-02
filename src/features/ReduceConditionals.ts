@@ -1,17 +1,16 @@
 import {Feature} from "../Feature";
 import {isBlockStatementLike, getValueInformation} from "../Util";
-import {KnownValue, ObjectValue} from "../Value";
-import Scope = require("../Scope");
+import {KnownValue} from "../Value";
 import AstNode = require("../AstNode");
 
 var feature:Feature<any> = new Feature<any>();
 
-feature.addPhase().before.onIfStatement((node:AstNode<IfStatement, any>)=> {
+feature.addPhase().before.onIfStatement((node:AstNode<IfStatement, any>) => {
     var expression = node.expression;
     var test = expression.test;
     var value = getValueInformation(test);
     if (value) {
-        var boolValue = value.map(value=> {
+        var boolValue = value.map(value => {
             if (value instanceof KnownValue) {
                 return new KnownValue(!!value.value);
             } else { //ObjectValue

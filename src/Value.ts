@@ -20,7 +20,7 @@ abstract class SingleValue extends Value {
     }
 
     product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
-        return other.map(rval=>mapper(this, rval));
+        return other.map(rval => mapper(this, rval));
     }
 }
 
@@ -30,7 +30,7 @@ export class KnownValue extends SingleValue {
     }
 }
 
-export const enum ObjectClass{
+export const enum ObjectClass {
     Function, Object, Array
 }
 
@@ -41,8 +41,11 @@ export class ObjectValue extends SingleValue {
 }
 
 export class FiniteSetOfValues extends Value {
-    private constructor(private values:SingleValue[]) {
-        super();
+    static create(values:SingleValue[]):Value {
+        if (allSameAndKnown(values)) {
+            return values[0];
+        }
+        return new FiniteSetOfValues(values);
     }
 
     or(value:Value):Value {
@@ -65,12 +68,16 @@ export class FiniteSetOfValues extends Value {
 
     product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
         if (other instanceof SingleValue) {
-            return this.map(lval=>mapper(lval, other));
+            return this.map(lval => mapper(lval, other));
         } else if (other instanceof FiniteSetOfValues) {
             return this.setProduct(other, mapper);
         } else {
             return other.product(this, mapper);
         }
+    }
+
+    private constructor(private values:SingleValue[]) {
+        super();
     }
 
     private setProduct(other:FiniteSetOfValues, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
@@ -84,13 +91,6 @@ export class FiniteSetOfValues extends Value {
         }
 
         return FiniteSetOfValues.create(values);
-    }
-
-    static create(values:SingleValue[]):Value {
-        if (allSameAndKnown(values)) {
-            return values[0];
-        }
-        return new FiniteSetOfValues(values);
     }
 }
 

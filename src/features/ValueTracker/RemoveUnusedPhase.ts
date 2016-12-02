@@ -77,9 +77,10 @@ export = function (feature:Feature<Variable>) {
     });
 
 //todo only if no fn references the var
-}
+};
 
 function canRemove(node:AstNode<Expression, Variable>, source:Expression, id:Identifier) {
     const variable = node.scope.get(id);
-    return variable && variable.isSafe(false) && !variable.canBeModifiedInLoop(node) && !variable.isUsed(source) && !node.scope.isGlobal(id);
+    return variable && variable.isSafe(false) && !variable.canBeModifiedInLoop(node)
+        && !variable.isUsed(source) && !node.scope.isGlobal(id);
 }

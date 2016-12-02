@@ -6,7 +6,8 @@ class AstNode<T extends Expression, S> {
     changed:boolean = false;
     replaced:boolean = false;
 
-    constructor(public expression:T, public parent:AstNode<any,S>, private parentObject:any, scopeMap:Map<Expression, Scope<any>>, private property?:string,) {
+    constructor(public expression:T, public parent:AstNode<any,S>, private parentObject:any,
+                scopeMap:Map<Expression, Scope<any>>, private property?:string,) {
         if (isBlockStatementLike(expression)) {
             if (scopeMap.has(expression)) {
                 this.scope = scopeMap.get(expression);
@@ -44,7 +45,7 @@ class AstNode<T extends Expression, S> {
     setCalculatedValue(value:Value) {
         var expression = this.expression;
         if (value instanceof KnownValue) {
-            if (value.value === void 0 && isUnaryExpression(expression) && isLiteral(expression.argument) && expression.argument.value === 0) {
+            if (value.value === void 0 && isVoid0(expression)) {
                 return; //already void 0
             }
             this.replaceWith([literalLike(value.value)]);
@@ -62,7 +63,10 @@ class AstNode<T extends Expression, S> {
             this.parent.markChanged();
         }
     }
+}
 
+function isVoid0(expression:Expression):boolean {
+    return isUnaryExpression(expression) && isLiteral(expression.argument) && expression.argument.value === 0;
 }
 
 export = AstNode;

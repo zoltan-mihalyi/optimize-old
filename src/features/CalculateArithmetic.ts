@@ -1,7 +1,6 @@
 import {Feature} from "../Feature";
 import {getValueInformation} from "../Util";
 import {KnownValue, unknown, ObjectValue, ObjectClass} from "../Value";
-import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
 var feature:Feature<any> = new Feature<any>();

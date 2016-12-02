@@ -24,7 +24,7 @@ export = function (feature:Feature<Variable>) {
             setWriteInfo(node.expression, node);
         }
     });
-}
+};
 
 function setWriteInfo(modified:Expression, node:AstNode<Expression, Variable>) {
     if (modified && isIdentifier(modified)) {

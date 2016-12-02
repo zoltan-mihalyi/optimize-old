@@ -1,4 +1,3 @@
-import Scope = require("./Scope");
 import AstNode = require("./AstNode");
 type Callback<E extends Expression, S> = (e:AstNode<E, S>)=>void;
 

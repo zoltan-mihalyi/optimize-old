@@ -1,7 +1,4 @@
 import {Feature} from "../../Feature";
-import Scope = require("../../Scope");
-import AstNode = require("../../AstNode");
-import Variable = require("./Variable");
 import declarationPhase = require("./DeclarationPhase");
 import updateWriteInfoPhase = require("./UpdateWriteInfoPhase");
 import valueTrackingPhase = require("./ValueTrackingPhase");

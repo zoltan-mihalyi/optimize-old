@@ -13,7 +13,6 @@ import {
     identifier,
     assignment
 } from "../Util";
-import Scope = require("../Scope");
 import AstNode = require("../AstNode");
 
 var feature:Feature<FunctionDeclaration|1> = new Feature<any>();

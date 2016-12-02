@@ -46,16 +46,6 @@ class Variable {
         }
     }
 
-    private findFirstDifferent(newScopes:Expression[]):number {
-        for (let i = 0; i < this.values.length; i++) {
-            const localValue = this.values[i];
-            if (localValue.scope !== null && newScopes.indexOf(localValue.scope) === -1) {
-                return i;
-            }
-        }
-        return this.values.length;
-    }
-
     topValue():LocalValue {
         return this.values[this.values.length - 1];
     }
@@ -90,7 +80,7 @@ class Variable {
     }
 
     isUsed(expression:Expression):boolean {
-        return this.usedSources.indexOf(expression) !== -1
+        return this.usedSources.indexOf(expression) !== -1;
     }
 
     updateValue(scope:Expression, expression:Expression, value:Value, replace:boolean) {
@@ -110,6 +100,16 @@ class Variable {
             });
         }
 
+    }
+
+    private findFirstDifferent(newScopes:Expression[]):number {
+        for (let i = 0; i < this.values.length; i++) {
+            const localValue = this.values[i];
+            if (localValue.scope !== null && newScopes.indexOf(localValue.scope) === -1) {
+                return i;
+            }
+        }
+        return this.values.length;
     }
 }
 

@@ -67,7 +67,7 @@ export = function (feature:Feature<Variable>) {
             node.setCalculatedValue(topValue.value);
         }
     });
-}
+};
 
 function canSubstitute(node:AstNode<Identifier, Variable>, variable:Variable):boolean {
     const expression = node.expression;
