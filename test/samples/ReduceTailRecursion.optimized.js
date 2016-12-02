@@ -31,3 +31,18 @@ function cannotReduce() {
     }
 }
 cannotReduce();
+
+function hasLabelAndVars(a, a2) {
+    x2:
+    while (1) {
+        var new_a = u();
+        x:for (var i = 0; i < 2; i++) {
+            var new_a2 = a + new_a + 1, new_a22 = a2 + 1;
+            a = new_a2;
+            a2 = new_a22;
+            continue x2;
+        }
+        return;
+    }
+}
+hasLabelAndVars(1);
