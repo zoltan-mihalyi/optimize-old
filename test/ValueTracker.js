@@ -20,4 +20,8 @@ describe('Inline known variables', function() {
     it('should remove unused declarations and assignments', function() {
         Helper.assertMatch('ValueTracker.RemoveUnused');
     });
+
+    it('should remove redundant variables', function() {
+        Helper.assertMatch('ValueTracker.RemoveRedundantVariables');
+    });
 });

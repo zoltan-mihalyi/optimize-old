@@ -8,6 +8,7 @@ class Variable {
     private writesInLoops:Expression[] = [];
     private values:LocalValue[] = [];
     private usedSources:Expression[] = [];
+    private usages:number = 0;
 
     constructor(node:AstNode<Expression,any>, blockScoped:boolean, value:Value, public functionDeclaration?:FunctionDeclaration) {
         this.values.push({
@@ -58,10 +59,15 @@ class Variable {
                 this.usedSources.push(obj);
             }
         }
+        this.usages++;
 
         if (!node.scope.hasInCurrentFunction(node.expression)) {
             this.accessFromFunctionOnly = false;
         }
+    }
+
+    getUsages():number {
+        return this.usages;
     }
 
     isSafe(writeOnly:boolean):boolean {

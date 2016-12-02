@@ -167,7 +167,7 @@ function getLiteralLikeValue(e:Expression):boolean {
     }
 }
 
-export function isBlockScoped (node:AstNode<VariableDeclarator, any>) {
+export function isBlockScoped(node:AstNode<VariableDeclarator, any>) {
     return (node.parent.expression as VariableDeclaration).kind !== 'var';
 }
 
@@ -283,5 +283,13 @@ export function binaryExpression(operator:string, left:Expression, right:Express
         operator: operator,
         left: left,
         right: right
+    };
+}
+
+export function call(callee:Expression, args:Expression[]):CallExpression {
+    return {
+        type: 'CallExpression',
+        callee: callee,
+        arguments: args
     };
 }
