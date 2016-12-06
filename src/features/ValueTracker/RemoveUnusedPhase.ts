@@ -55,7 +55,7 @@ export = function (feature:Feature<Variable>) {
                 }
             }
 
-            if (parentExpression.declarations.length === 1 && node.expression.init === newInit) {
+            if (node.expression.init === newInit) {
                 return; //disables replacing by itself
             }
 

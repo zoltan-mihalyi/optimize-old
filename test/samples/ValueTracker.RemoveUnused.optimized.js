@@ -50,3 +50,15 @@ var global;
 
 function globalFn() {
 }
+
+function on() {
+    var origFn, type;
+
+    for (type in u()) {
+    }
+
+    return function() {
+        return origFn;
+    };
+}
+on();
