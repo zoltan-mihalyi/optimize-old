@@ -172,7 +172,7 @@ export function isClean(e:Expression) {
 }
 
 export function isRealIdentifier(expression:Expression, parentExpression:Expression):boolean {
-    return !(isMemberExpression(parentExpression) && parentExpression.property === expression);
+    return !(isMemberExpression(parentExpression) && parentExpression.property === expression && !parentExpression.computed);
 }
 
 function isLiteralLike(e:Expression):boolean {

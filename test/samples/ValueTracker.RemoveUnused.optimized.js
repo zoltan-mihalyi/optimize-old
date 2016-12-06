@@ -10,6 +10,9 @@
     var z = u();
     z++;
     console.log(z)
+
+    var a = u();
+    console.log(u[a]);
 })();
 
 (function() {
