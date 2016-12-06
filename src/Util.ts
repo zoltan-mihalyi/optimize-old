@@ -72,6 +72,10 @@ export function isForOfStatement(e:Expression):e is ForOfStatement {
     return e.type === 'ForOfStatement';
 }
 
+export function isForInStatementLike(e:Expression):e is ForInStatement {
+    return isForInStatement(e) || isForOfStatement(e);
+}
+
 export function isVariableDeclarator(e:Expression):e is VariableDeclarator {
     return e.type === 'VariableDeclarator';
 }
@@ -108,12 +112,28 @@ export function isArrayExpression(e:Expression):e is ArrayExpression {
     return e.type === 'ArrayExpression';
 }
 
-function isMemberExpression(e:Expression):e is MemberExpression {
+export function isMemberExpression(e:Expression):e is MemberExpression {
     return e.type === 'MemberExpression';
 }
 
 export function isIfStatement(e:Expression):e is IfStatement {
     return e.type === 'IfStatement';
+}
+
+export function isConditionalExpression(e:Expression):e is ConditionalExpression {
+    return e.type === 'ConditionalExpression';
+}
+
+export function isLabeledStatement(e:Expression):e is LabeledStatement {
+    return e.type === 'LabeledStatement';
+}
+
+export function isObjectExpression(e:Expression):e is ObjectExpression {
+    return e.type === 'ObjectExpression';
+}
+
+export function isProperty(e:Expression):e is Property {
+    return e.type === 'Property';
 }
 
 export function getValueInformation(e:Expression):Value {
@@ -291,5 +311,77 @@ export function call(callee:Expression, args:Expression[]):CallExpression {
         type: 'CallExpression',
         callee: callee,
         arguments: args
+    };
+}
+
+export function memberExpression(object:Expression, property:Identifier, computed:boolean):MemberExpression {
+    return {
+        type: 'MemberExpression',
+        object: object,
+        property: property,
+        computed: computed
+    };
+}
+
+export function ifStatement(test:Expression, consequent:Expression, alternate:Expression):IfStatement {
+    return {
+        type: 'IfStatement',
+        test: test,
+        consequent: consequent,
+        alternate: alternate
+    };
+}
+
+export function array(elements:Expression[]):ArrayExpression {
+    return {
+        type: 'ArrayExpression',
+        elements: elements
+    };
+}
+
+export function forStatement(init:Expression, test:Expression, update:Expression, body:Expression):ForStatement {
+    return {
+        type: 'ForStatement',
+        init: init,
+        test: test,
+        update: update,
+        body: body
+    };
+}
+
+export function forInStatement(left:Expression, right:Expression, body:Expression, of:boolean):ForInStatement {
+    return {
+        type: of ? 'ForOfStatement' : 'ForInStatement',
+        left: left,
+        right: right,
+        body: body
+    };
+}
+
+export function conditional(test:Expression, consequent:Expression, alternate:Expression):ConditionalExpression {
+    return {
+        type: 'ConditionalExpression',
+        test: test,
+        consequent: consequent,
+        alternate: alternate
+    };
+}
+
+export function object(properties:Property[]):ObjectExpression {
+    return {
+        type: 'ObjectExpression',
+        properties: properties
+    };
+}
+
+export function property(key:Identifier, value:Expression):Property {
+    return { //todo handle different types
+        type: 'Property',
+        key: key,
+        value: value,
+        method: false,
+        kind: 'init',
+        shorthand: false,
+        computed: false
     };
 }

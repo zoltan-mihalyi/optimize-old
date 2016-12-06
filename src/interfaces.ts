@@ -128,6 +128,19 @@ interface ArrayExpression extends Expression {
     elements:Expression[];
 }
 
+interface Property extends Expression {
+    computed:boolean;
+    key:Identifier;
+    kind:'init';
+    method:boolean;
+    shorthand:boolean;
+    value:Expression;
+}
+
+interface ObjectExpression extends Expression {
+    properties:Property[];
+}
+
 interface ForInStatement extends Expression {
     left:Expression;
     right:Expression;
