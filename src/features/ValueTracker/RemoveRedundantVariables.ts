@@ -37,7 +37,8 @@ import {
     isObjectExpression,
     object,
     isProperty,
-    property
+    property,
+    isThis
 } from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
@@ -151,6 +152,8 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
         return object(substituteAll(expression.properties, context));
     } else if (isProperty(expression)) {
         return property(expression.key, substitute(expression.value, context));
+    } else if (isThis(expression)) {
+        return expression;
     } else {
         throw new Error('UNKNOWN');
     }

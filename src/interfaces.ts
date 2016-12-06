@@ -137,6 +137,9 @@ interface Property extends Expression {
     value:Expression;
 }
 
+interface ThisExpression extends Expression {
+}
+
 interface ObjectExpression extends Expression {
     properties:Property[];
 }

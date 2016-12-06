@@ -136,6 +136,10 @@ export function isProperty(e:Expression):e is Property {
     return e.type === 'Property';
 }
 
+export function isThis(e:Expression) {
+    return e.type === 'ThisExpression';
+}
+
 export function getValueInformation(e:Expression):Value {
     if (e.calculatedValue) {
         return e.calculatedValue;
