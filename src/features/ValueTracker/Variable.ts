@@ -52,7 +52,7 @@ class Variable {
     }
 
     markUsed(node:AstNode<Identifier, any>) {
-        const sources = this.topValue().sources;
+        const sources = [this.values[0].sources[0], ...this.topValue().sources];
         for (let i = 0; i < sources.length; i++) {
             const obj = sources[i];
             if (this.usedSources.indexOf(obj) === -1) {

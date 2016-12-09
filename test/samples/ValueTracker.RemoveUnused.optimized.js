@@ -41,7 +41,7 @@
 
     var d = {};
 
-    console.log(()=>{
+    console.log(() => {
         d.x
     });
 })();
@@ -69,3 +69,12 @@ on();
     for (i = 0; i < 10; i++) {
     }
 })()
+
+(function() {
+    var axa;
+    if (u()) {
+        axa = u();
+        for (; axa;) {
+        }
+    }
+})();
