@@ -89,7 +89,11 @@ class Variable {
         return false;
     }
 
-    canBeModifiedInLoop(node:AstNode<Expression,any>):boolean {
+    canBeModifiedInLoop(node?:AstNode<Expression,any>):boolean {
+        if (!node) {
+            return this.writesInLoops.length > 0;
+        }
+
         let current = node;
         while (current.parent) {
             current = current.parent;

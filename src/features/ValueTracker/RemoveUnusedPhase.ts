@@ -81,6 +81,6 @@ export = function (feature:Feature<Variable>) {
 
 function canRemove(node:AstNode<Expression, Variable>, source:Expression, id:Identifier) {
     const variable = node.scope.get(id);
-    return variable && variable.isSafe(false) && !variable.canBeModifiedInLoop(node)
+    return variable && variable.isSafe(false) && !variable.canBeModifiedInLoop()
         && !variable.isUsed(source) && !node.scope.isGlobal(id);
 }
