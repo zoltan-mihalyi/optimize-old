@@ -135,8 +135,21 @@
 
 (function() {
     var x = u();
-    try{
+    try {
         return x + 1;
-    }catch(e){
+    } catch (e) {
     }
+})();
+
+(function() {
+    var x = u();
+    while (x) {
+    }
+})();
+
+(function() {
+    var x = u();
+    do {
+        return x;
+    } while (x)
 })();

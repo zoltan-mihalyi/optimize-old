@@ -41,7 +41,9 @@ import {
     isThis,
     isFunctionLike,
     isTryStatement,
-    isBlockStatement
+    isBlockStatement,
+    isWhileStatement,
+    isDoWhileStatement
 } from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
@@ -150,6 +152,10 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
         return forStatement(substitute(expression.init, context), expression.test, expression.update, expression.body);
     } else if (isForInStatementLike(expression)) {
         return forInStatement(expression.left, substitute(expression.right, context), expression.body, isForOfStatement(expression));
+    } else if (isWhileStatement(expression)) {
+        return expression;
+    } else if (isDoWhileStatement(expression)) {
+        return expression;
     } else if (isConditionalExpression(expression)) {
         return conditional(substitute(expression.test, context), expression.consequent, expression.alternate);
     } else if (isLabeledStatement(expression)) {
