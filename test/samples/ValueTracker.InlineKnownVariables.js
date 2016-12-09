@@ -33,6 +33,9 @@
     (function() {
         console.log(a);
     })();
+    (function(a) {
+        console.log(a);
+    })(3);
 })();
 
 (function() {

@@ -1,6 +1,6 @@
 import {Feature} from "../../Feature";
 import {ObjectClass, ObjectValue, KnownValue, unknown} from "../../Value";
-import {identifier, isBlockScoped} from "../../Util";
+import {identifier, isBlockScoped, isFunctionLike} from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
 
@@ -20,6 +20,19 @@ export = function (feature:Feature<Variable>):void {
 
     declarationPhase.before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Variable>) => {
         node.scope.save(node.expression.id, new Variable(node, false, new ObjectValue(ObjectClass.Function), true, node.expression), false);
+    });
+
+    declarationPhase.before.onBlockStatementLike((node:AstNode<BlockStatement, Variable>) => {
+        if (!node.parent) {
+            return;
+        }
+        const parentExpression = node.parent.expression;
+        if (isFunctionLike(parentExpression)) {
+            for (let i = 0; i < parentExpression.params.length; i++) {
+                const param = parentExpression.params[i];
+                node.scope.save(param, new Variable(node, false, unknown, true), false);
+            }
+        }
     });
 };
 
