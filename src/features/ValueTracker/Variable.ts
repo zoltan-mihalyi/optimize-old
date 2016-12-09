@@ -1,7 +1,7 @@
 import LocalValue = require("./LocalValue");
 import AstNode = require("../../AstNode");
 import {Value} from "../../Value";
-import {isFunctionLike, isLoop} from "../../Util";
+import {isFunctionLike, isLoop, isVariableDeclarator} from "../../Util";
 class Variable {
     private writesFromFunctionOnly:boolean = true;
     private accessFromFunctionOnly:boolean = true;
@@ -10,7 +10,7 @@ class Variable {
     private usedSources:Expression[] = [];
     private usages:number = 0;
 
-    constructor(node:AstNode<Expression,any>, blockScoped:boolean, value:Value, public functionDeclaration?:FunctionDeclaration) {
+    constructor(node:AstNode<Expression,any>, blockScoped:boolean, value:Value, private initialized:boolean, public functionDeclaration?:FunctionDeclaration) {
         this.values.push({
             scope: node.scope.getScope(blockScoped).getExpression(),
             sources: [node.expression],
@@ -74,6 +74,21 @@ class Variable {
         return writeOnly ? this.writesFromFunctionOnly : this.accessFromFunctionOnly;
     }
 
+    oneWrite():boolean {
+        if (this.values.length !== 1) {
+            return;
+        }
+        let sources = this.values[0].sources;
+        if (sources.length === 1) {
+            return true;
+        }
+        if (sources.length === 2) {
+            let firstSource = sources[0];
+            return isVariableDeclarator(firstSource) && firstSource.init === sources[1];
+        }
+        return false;
+    }
+
     canBeModifiedInLoop(node:AstNode<Expression,any>):boolean {
         let current = node;
         while (current.parent) {
@@ -89,7 +104,12 @@ class Variable {
         return this.usedSources.indexOf(expression) !== -1;
     }
 
+    isInitialized():boolean {
+        return this.initialized;
+    }
+
     updateValue(scope:Expression, expression:Expression, value:Value, replace:boolean) {
+        this.initialized = true;
         let topValue = this.topValue();
         if (topValue.scope === scope) {
             if (replace) {

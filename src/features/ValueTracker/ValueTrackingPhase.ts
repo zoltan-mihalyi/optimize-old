@@ -73,7 +73,9 @@ function canSubstitute(node:AstNode<Identifier, Variable>, variable:Variable):bo
     const expression = node.expression;
     const parentExpression = node.parent.expression;
     if (!node.scope.hasInCurrentFunction(expression)) {
-        return false;
+        if (!variable.oneWrite() || !variable.isInitialized()) {
+            return false;
+        }
     }
 
     if (isUpdateExpression(parentExpression)) {

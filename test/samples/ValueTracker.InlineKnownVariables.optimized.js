@@ -27,11 +27,24 @@
     (function() {
         y = 3;
     })
+
+    (function() {
+        console.log(2);
+    })();
 })();
 
 (function() {
-    var a = (function() {
-        console.log(a);
+    var a1 = setInterval(function() {
+        console.log(a1);
+        console.log(a2);
+        console.log(a3);
+    });
+    var a2;
+    var a3 = 1;
+    a2 = setInterval(function() {
+        console.log(a1);
+        console.log(a2);
+        console.log(1);
     });
 
     var b = 1;

@@ -15,14 +15,14 @@ export = function (feature:Feature<Variable>):void {
 
     declarationPhase.before.onVariableDeclarator((node:AstNode<VariableDeclarator, Variable>) => {
         let blockScoped = isBlockScoped(node);
-        node.scope.save(node.expression.id, new Variable(node, blockScoped, blockScoped ? unknown : new KnownValue(void 0)), blockScoped);
+        node.scope.save(node.expression.id, new Variable(node, blockScoped, blockScoped ? unknown : new KnownValue(void 0), false), blockScoped);
     });
 
     declarationPhase.before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Variable>) => {
-        node.scope.save(node.expression.id, new Variable(node, false, new ObjectValue(ObjectClass.Function), node.expression), false);
+        node.scope.save(node.expression.id, new Variable(node, false, new ObjectValue(ObjectClass.Function), true, node.expression), false);
     });
 };
 
 function saveApi(node:AstNode<any,Variable>, name:string, type:ObjectClass) {
-    node.scope.save(identifier(name), new Variable(node, false, new ObjectValue(type)), false);
+    node.scope.save(identifier(name), new Variable(node, false, new ObjectValue(type), false), false);
 }

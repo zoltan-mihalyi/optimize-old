@@ -28,11 +28,25 @@
     (function() {
         y = 3;
     })
+
+    var a = 2;
+    (function() {
+        console.log(a);
+    })();
 })();
 
 (function() {
-    var a = (function() {
-        console.log(a);
+    var a1 = setInterval(function() {
+        console.log(a1);
+        console.log(a2);
+        console.log(a3);
+    });
+    var a2;
+    var a3 = 1;
+    a2 = setInterval(function() {
+        console.log(a1);
+        console.log(a2);
+        console.log(a3);
     });
 
     var b = 1;
