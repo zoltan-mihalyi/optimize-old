@@ -145,12 +145,15 @@ function getScopes(node:AstNode<Expression, Variable>):Expression[] {
     const result:Expression[] = [];
     let current = node;
     while (current.parent) {
-        const expression = current.expression;
-        if (isFunctionLike(expression) || isLoop(expression) || isIfStatement(expression) || isBinaryExpressionLike(expression)) {
-            result.unshift(expression);
+        const expression = current.parent.expression;
+        if (isFunctionLike(expression) || isLoop(expression)
+            || (isIfStatement(expression) && expression.test !== current.expression)
+            || isBinaryExpressionLike(expression)) {
+            result.unshift(current.expression);
         }
 
         current = current.parent;
     }
+    result.unshift(current.expression);
     return result;
 }

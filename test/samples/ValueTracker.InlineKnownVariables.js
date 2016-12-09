@@ -86,8 +86,17 @@
 
     console.log(x < 5);
 
+    var z;
+    if (u()) {
+        z = 1
+    } else {
+        console.log(z);
+    }
+    console.log(z);
+
     var y = "abc";
     return {
         y: 1
     }
+
 })();

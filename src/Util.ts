@@ -186,7 +186,7 @@ function isLiteralLike(e:Expression):boolean {
     return isLiteral(e) || (isUnaryExpression(e) && e.operator === 'void' && isClean(e.argument));
 }
 
-export function isLoop(e) {
+export function isLoop(e):e is Loop {
     return isWhileStatement(e) || isForInStatement(e) || isForOfStatement(e) || isForStatement(e) || isDoWhileStatement(e);
 }
 

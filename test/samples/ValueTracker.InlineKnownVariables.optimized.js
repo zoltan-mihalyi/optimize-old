@@ -84,6 +84,14 @@
 
     console.log(x < 5);
 
+    var z;
+    if (u()) {
+        z = 1
+    } else {
+        console.log(z);
+    }
+    console.log(z);
+
     return {
         y: 1
     }

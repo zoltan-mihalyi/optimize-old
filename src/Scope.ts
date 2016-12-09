@@ -3,7 +3,7 @@ class Scope<T> {
     private store:{[idx:string]:T} = Object.create(null);
     private functionScope:boolean;
 
-    constructor(private parentExpression:Expression, private parent:Scope<T>) {
+    constructor(private expression:Expression, private parentExpression:Expression, private parent:Scope<T>) {
         this.functionScope = parent === null || isFunctionLike(parentExpression);
     }
 
@@ -19,7 +19,7 @@ class Scope<T> {
     }
 
     getExpression() {
-        return this.parentExpression;
+        return this.expression;
     }
 
     get(id:Identifier):T {

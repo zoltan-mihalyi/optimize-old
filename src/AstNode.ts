@@ -12,7 +12,7 @@ class AstNode<T extends Expression, S> {
             if (scopeMap.has(expression)) {
                 this.scope = scopeMap.get(expression);
             } else {
-                this.scope = new Scope<any>(parent ? parent.expression : null, parent ? parent.scope : null);
+                this.scope = new Scope<any>(expression, parent ? parent.expression : null, parent ? parent.scope : null);
                 scopeMap.set(expression, this.scope);
             }
         } else {

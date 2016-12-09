@@ -100,16 +100,18 @@ interface Directive extends Expression {
     expression:Expression;
 }
 
-interface WhileStatement extends Expression {
-    test:Expression;
+interface Loop extends Expression{
     body:Expression;
 }
 
-interface ForStatement extends Expression {
+interface WhileStatement extends Loop {
+    test:Expression;
+}
+
+interface ForStatement extends Loop {
     init:Expression;
     test:Expression;
     update:Expression;
-    body:Expression;
 }
 
 interface DoWhileStatement extends WhileStatement {
