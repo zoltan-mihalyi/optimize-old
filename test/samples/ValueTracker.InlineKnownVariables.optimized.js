@@ -83,4 +83,8 @@
     }
 
     console.log(x < 5);
+
+    return {
+        y: 1
+    }
 })();

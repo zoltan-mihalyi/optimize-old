@@ -176,6 +176,9 @@ export function isClean(e:Expression) {
 }
 
 export function isRealIdentifier(expression:Expression, parentExpression:Expression):boolean {
+    if (isProperty(parentExpression) && parentExpression.key === expression && !parentExpression.computed) {
+        return false;
+    }
     return !(isMemberExpression(parentExpression) && parentExpression.property === expression && !parentExpression.computed);
 }
 

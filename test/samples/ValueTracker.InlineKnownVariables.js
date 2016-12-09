@@ -85,4 +85,9 @@
     }
 
     console.log(x < 5);
+
+    var y = "abc";
+    return {
+        y: 1
+    }
 })();
