@@ -100,6 +100,9 @@ const enum Mode{
 }
 
 function substitute(expression:Expression, context:Context, mode?:Mode):Expression {
+    if (!expression) {
+        return expression;
+    }
     if (context.replaced) {
         return expression;
     }

@@ -90,6 +90,10 @@
     var x = u();
     for (var i = x; i < 10; i++) {
     }
+
+    var y = u();
+    for (; y < 10; i++) {
+    }
 })();
 
 (function() {
