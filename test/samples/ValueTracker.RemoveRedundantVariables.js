@@ -125,3 +125,18 @@
         a: x
     };
 })();
+
+(function() {
+    var x = u();
+    {
+        return x + 1;
+    }
+})();
+
+(function() {
+    var x = u();
+    try{
+        return x + 1;
+    }catch(e){
+    }
+})();

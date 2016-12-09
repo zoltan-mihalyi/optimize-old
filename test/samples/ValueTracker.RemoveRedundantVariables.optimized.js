@@ -106,3 +106,17 @@
         a: u()
     };
 })();
+
+(function() {
+    {
+        return u() + 1;
+    }
+})();
+
+(function() {
+    var x = u();
+    try{
+        return x + 1;
+    }catch(e){
+    }
+})();

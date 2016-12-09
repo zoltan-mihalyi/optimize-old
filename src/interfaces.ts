@@ -124,6 +124,17 @@ interface ContinueStatement extends Expression {
     label:Identifier;
 }
 
+interface TryStatement extends Expression {
+    block:BlockStatement;
+    handler:CatchClause;
+    finalizer:BlockStatement;
+}
+
+interface CatchClause extends Expression {
+    param:Identifier;
+    body:BlockStatement;
+}
+
 interface ArrayExpression extends Expression {
     elements:Expression[];
 }

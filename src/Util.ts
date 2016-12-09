@@ -140,6 +140,10 @@ export function isThis(e:Expression) {
     return e.type === 'ThisExpression';
 }
 
+export function isTryStatement(e:Expression):e is TryStatement {
+    return e.type === 'TryStatement';
+}
+
 export function getValueInformation(e:Expression):Value {
     if (e.calculatedValue) {
         return e.calculatedValue;

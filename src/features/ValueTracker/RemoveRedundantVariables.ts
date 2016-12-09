@@ -39,7 +39,9 @@ import {
     isProperty,
     property,
     isThis,
-    isFunctionLike
+    isFunctionLike,
+    isTryStatement,
+    isBlockStatement
 } from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
@@ -160,6 +162,10 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
         return expression;
     } else if (isFunctionLike(expression)) {
         return expression;
+    } else if (isTryStatement(expression)) {
+        return expression;
+    } else if (isBlockStatement(expression)) {
+        return block(substituteAll(expression.body, context));
     } else {
         throw new Error('UNKNOWN');
     }
