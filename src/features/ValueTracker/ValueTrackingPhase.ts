@@ -12,7 +12,8 @@ import {
     literal,
     isVariableDeclarator,
     isRealIdentifier,
-    isDeclared
+    isDeclared,
+    isTryStatement
 } from "../../Util";
 import {unknown, KnownValue, Value} from "../../Value";
 import AstNode = require("../../AstNode");
@@ -153,7 +154,7 @@ function getScopes(node:AstNode<Expression, Variable>):Expression[] {
         const expression = current.parent.expression;
         if (isFunctionLike(expression) || isLoop(expression)
             || (isIfStatement(expression) && expression.test !== current.expression)
-            || isBinaryExpressionLike(expression)) {
+            || isBinaryExpressionLike(expression) || isTryStatement(expression)) {
             result.unshift(current.expression);
         }
 

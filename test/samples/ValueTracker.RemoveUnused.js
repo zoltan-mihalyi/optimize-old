@@ -93,3 +93,13 @@ on();
         }
     }
 })();
+
+(function() {
+    var x;
+    try {
+        x = u();
+    } catch (e) {
+        x = 1;
+    }
+    return x;
+})();
