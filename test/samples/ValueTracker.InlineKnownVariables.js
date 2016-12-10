@@ -1,4 +1,13 @@
 (function() {
+    var v = /a/g;
+
+    function isV(p) {
+        return p === v;
+    }
+
+    console.log(v === v);
+    console.log(isV(v));
+
     var w = 2;
     var x = 2;
     var y = 2;

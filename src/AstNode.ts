@@ -1,6 +1,6 @@
 import Scope = require("./Scope");
 import {isBlockStatementLike, literalLike, isUnaryExpression, isLiteral} from "./Util";
-import {Value, KnownValue, FiniteSetOfValues, ObjectValue} from "./Value";
+import {Value, KnownValue, UnknownValue} from "./Value";
 class AstNode<T extends Expression, S> {
     scope:Scope<S>;
     changed:boolean = false;
@@ -43,17 +43,18 @@ class AstNode<T extends Expression, S> {
     }
 
     setCalculatedValue(value:Value) {
-        var expression = this.expression;
+        const expression = this.expression;
         if (value instanceof KnownValue) {
-            if (value.value === void 0 && isVoid0(expression)) {
-                return; //already void 0
+            if (canReplaceWithLiteral(value, expression)) {
+                this.replaceWith([literalLike(value.value)]);
+                return;
             }
-            this.replaceWith([literalLike(value.value)]);
-        } else if (value instanceof FiniteSetOfValues || value instanceof ObjectValue) {
-            if (!expression.calculatedValue) {
-                expression.calculatedValue = value;
-                this.markChanged();
-            }
+        } else if (value instanceof UnknownValue) {
+            return;
+        }
+        if (!expression.calculatedValue) {
+            expression.calculatedValue = value;
+            this.markChanged();
         }
     }
 
@@ -63,6 +64,14 @@ class AstNode<T extends Expression, S> {
             this.parent.markChanged();
         }
     }
+}
+
+function canReplaceWithLiteral(value:KnownValue, expression:Expression):boolean {
+    if (value.value === void 0 && isVoid0(expression)) {
+        return false; //already void 0
+    }
+    return !(value.value instanceof RegExp);
+
 }
 
 function isVoid0(expression:Expression):boolean {
