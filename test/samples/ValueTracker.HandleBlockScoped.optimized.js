@@ -13,4 +13,9 @@
     console.log(w);
     const w = 0;
     u();
+
+    (function() {
+        console.log(v);
+        let v;
+    })();
 })();

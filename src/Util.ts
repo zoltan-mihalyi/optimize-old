@@ -1,5 +1,6 @@
 import {KnownValue, Value, ObjectValue, ObjectClass} from "./Value";
 import AstNode = require("./AstNode");
+import Variable = require("./features/ValueTracker/Variable");
 export function isLiteral(e:Expression):e is Literal {
     return e.type === 'Literal';
 }
@@ -200,6 +201,11 @@ function getLiteralLikeValue(e:Expression):boolean {
 
 export function isBlockScoped(node:AstNode<VariableDeclarator, any>) {
     return (node.parent.expression as VariableDeclaration).kind !== 'var';
+}
+
+export function isDeclared(node:AstNode<VariableDeclarator, Variable>):boolean {
+    const id = node.expression.id;
+    return isBlockScoped(node) ? node.scope.hasInCurrentBlock(id) : node.scope.hasInCurrentFunction(id);
 }
 
 export function returnStatement(argument?:Expression):ReturnStatement {

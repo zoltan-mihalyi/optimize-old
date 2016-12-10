@@ -11,7 +11,8 @@ import {
     isIdentifier,
     literal,
     isVariableDeclarator,
-    isRealIdentifier
+    isRealIdentifier,
+    isDeclared
 } from "../../Util";
 import {unknown, KnownValue, Value} from "../../Value";
 import AstNode = require("../../AstNode");
@@ -21,8 +22,12 @@ export = function (feature:Feature<Variable>) {
     let valueTrackingPhase = feature.addPhase();
 
     valueTrackingPhase.after.onVariableDeclarator((node:AstNode<VariableDeclarator, Variable>) => {
+        let id = node.expression.id;
+        if (!node.expression.init && isDeclared(node) && node.scope.get(id).isInitialized()) {
+            return;
+        }
         const init = node.expression.init || literal(void 0);
-        handleAssignment(node, init, node.expression.id, '=', init);
+        handleAssignment(node, init, id, '=', init);
     });
 
     valueTrackingPhase.after.onAssignmentExpression((node:AstNode<AssignmentExpression, Variable>) => {

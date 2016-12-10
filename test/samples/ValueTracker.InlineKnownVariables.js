@@ -16,6 +16,8 @@
     u.z++;
     console.log(u.z)
     console.log(z)
+    var z;
+    console.log(z)
 
     function b() {
         u || x++;

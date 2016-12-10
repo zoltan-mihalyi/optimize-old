@@ -1,6 +1,6 @@
 import {Feature} from "../../Feature";
 import {ObjectClass, ObjectValue, KnownValue, unknown} from "../../Value";
-import {identifier, isBlockScoped, isFunctionLike} from "../../Util";
+import {identifier, isBlockScoped, isFunctionLike, isDeclared} from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
 
@@ -14,7 +14,10 @@ export = function (feature:Feature<Variable>):void {
     });
 
     declarationPhase.before.onVariableDeclarator((node:AstNode<VariableDeclarator, Variable>) => {
-        let blockScoped = isBlockScoped(node);
+        if (isDeclared(node)) {
+            return;
+        }
+        const blockScoped = isBlockScoped(node);
         node.scope.save(node.expression.id, new Variable(node, blockScoped, blockScoped ? unknown : new KnownValue(void 0), false), blockScoped);
     });
 

@@ -15,4 +15,9 @@
 
     console.log(w);
     const w = u();
+
+    (function() {
+        console.log(v);
+        let v = 1;
+    })();
 })();
