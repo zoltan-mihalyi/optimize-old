@@ -158,6 +158,9 @@ export function getValueInformation(e:Expression):Value {
     if (isFunctionLike(e)) {
         return new ObjectValue(ObjectClass.Function);
     }
+    if (isObjectExpression(e)) {
+        return new ObjectValue(ObjectClass.Object);
+    }
     return null;
 }
 
