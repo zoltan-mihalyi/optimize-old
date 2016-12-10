@@ -100,7 +100,7 @@ interface Directive extends Expression {
     expression:Expression;
 }
 
-interface Loop extends Expression{
+interface Loop extends Expression {
     body:Expression;
 }
 
@@ -143,7 +143,7 @@ interface ArrayExpression extends Expression {
 
 interface Property extends Expression {
     computed:boolean;
-    key:Identifier;
+    key:Expression;
     kind:'init';
     method:boolean;
     shorthand:boolean;

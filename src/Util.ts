@@ -177,6 +177,18 @@ export function isClean(e:Expression) {
         }
         return true;
     }
+    if (isObjectExpression(e)) {
+        for (let i = 0; i < e.properties.length; i++) {
+            const property = e.properties[i];
+            if (property.computed && !isClean(property.key)) {
+                return false;
+            }
+            if (!isClean(property.value)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 export function isRealIdentifier(expression:Expression, parentExpression:Expression):boolean {
@@ -394,14 +406,14 @@ export function object(properties:Property[]):ObjectExpression {
     };
 }
 
-export function property(key:Identifier, value:Expression):Property {
-    return { //todo handle different types
+export function property(key:Expression, value:Expression, method:boolean, kind:'init', shorthand:boolean, computed:boolean):Property {
+    return {
         type: 'Property',
         key: key,
         value: value,
-        method: false,
-        kind: 'init',
-        shorthand: false,
-        computed: false
+        method: method,
+        kind: kind,
+        shorthand: shorthand,
+        computed: computed
     };
 }

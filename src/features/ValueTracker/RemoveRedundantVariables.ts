@@ -163,7 +163,7 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
     } else if (isObjectExpression(expression)) {
         return object(substituteAll(expression.properties, context));
     } else if (isProperty(expression)) {
-        return property(expression.key, substitute(expression.value, context));
+        return property(expression.key, substitute(expression.value, context), expression.method, expression.kind, expression.shorthand, expression.computed);
     } else if (isThis(expression)) {
         return expression;
     } else if (isFunctionLike(expression)) {
