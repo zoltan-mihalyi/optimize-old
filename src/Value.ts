@@ -31,7 +31,7 @@ export class KnownValue extends SingleValue {
 }
 
 export const enum ObjectClass {
-    Function, Object, Array
+    Function, Object
 }
 
 export class ObjectValue extends SingleValue {
