@@ -76,6 +76,10 @@ class FeatureStore<T> {
         this.on('Program', callback);
     }
 
+    onMemberExpression(callback:Callback<MemberExpression,T>) {
+        this.on('MemberExpression', callback);
+    }
+
     private on(type:string, callback:Callback<Expression,T>) {
         if (!this.store[type]) {
             this.store[type] = [callback];

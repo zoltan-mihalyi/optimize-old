@@ -91,8 +91,13 @@ interface AssignmentExpression extends Expression {
 
 interface MemberExpression extends Expression {
     object:Expression;
-    property:Identifier;
+    property:Expression;
     computed:boolean;
+}
+
+interface StaticMemberExpression extends MemberExpression {
+    property:Identifier;
+    computed:false;
 }
 
 interface Directive extends Expression {
@@ -148,6 +153,11 @@ interface Property extends Expression {
     method:boolean;
     shorthand:boolean;
     value:Expression;
+}
+
+interface StaticProperty extends Property {
+    computed:false;
+    key:Identifier;
 }
 
 interface ThisExpression extends Expression {

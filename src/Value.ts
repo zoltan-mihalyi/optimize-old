@@ -34,9 +34,15 @@ export const enum ObjectClass {
     Function, Object
 }
 
+export type ValueMap = {[idx:string]:Value};
+
 export class ObjectValue extends SingleValue {
-    constructor(public objectClass:ObjectClass) {
+    constructor(public objectClass:ObjectClass, private properties:ValueMap = Object.create(null)) {
         super();
+    }
+
+    resolve(property:string):Value {
+        return this.properties[property] || unknown;
     }
 }
 

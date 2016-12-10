@@ -24,4 +24,8 @@ describe('Inline known variables', function() {
     it('should remove redundant variables', function() {
         Helper.assertMatch('ValueTracker.RemoveRedundantVariables');
     });
+
+    it('should track object properties', function() {
+        Helper.assertMatch('ValueTracker.TrackObjects');
+    });
 });

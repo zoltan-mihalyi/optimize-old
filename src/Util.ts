@@ -1,4 +1,4 @@
-import {KnownValue, Value, ObjectValue, ObjectClass} from "./Value";
+import {KnownValue, Value, ObjectValue, ObjectClass, ValueMap} from "./Value";
 import AstNode = require("./AstNode");
 import Variable = require("./features/ValueTracker/Variable");
 export function isLiteral(e:Expression):e is Literal {
@@ -117,6 +117,10 @@ export function isMemberExpression(e:Expression):e is MemberExpression {
     return e.type === 'MemberExpression';
 }
 
+export function isStaticMemberExpression(e:MemberExpression):e is StaticMemberExpression {
+    return !e.computed;
+}
+
 export function isIfStatement(e:Expression):e is IfStatement {
     return e.type === 'IfStatement';
 }
@@ -135,6 +139,10 @@ export function isObjectExpression(e:Expression):e is ObjectExpression {
 
 export function isProperty(e:Expression):e is Property {
     return e.type === 'Property';
+}
+
+export function isStaticProperty(e:Property):e is StaticProperty {
+    return e.computed === false;
 }
 
 export function isThis(e:Expression) {
@@ -159,7 +167,17 @@ export function getValueInformation(e:Expression):Value {
         return new ObjectValue(ObjectClass.Function);
     }
     if (isObjectExpression(e)) {
-        return new ObjectValue(ObjectClass.Object);
+        let map:ValueMap = {};
+        for (let i = 0; i < e.properties.length; i++) {
+            const property = e.properties[i];
+            if (isStaticProperty(property)) {
+                map[property.key.name] = getValueInformation(property.value);
+            } else {
+                map = void 0;
+                break;
+            }
+        }
+        return new ObjectValue(ObjectClass.Object, map);
     }
     return null;
 }
@@ -169,8 +187,8 @@ export function isClean(e:Expression) {
         return true;
     }
     if (isArrayExpression(e)) {
-        for (var i = 0; i < e.elements.length; i++) {
-            var element = e.elements[i];
+        for (let i = 0; i < e.elements.length; i++) {
+            const element = e.elements[i];
             if (!isClean(element)) {
                 return false;
             }
