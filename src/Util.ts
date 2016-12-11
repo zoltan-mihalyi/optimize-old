@@ -302,6 +302,16 @@ export function block(body:Expression[]):BlockStatement {
     };
 }
 
+export function update(argument:Expression, operator:string, prefix:boolean):UpdateExpression {
+    return {
+        type: 'UpdateExpression',
+        prefix: prefix,
+        operator: operator,
+        argument: argument
+    };
+}
+
+
 export function continueStatement(name:string):ContinueStatement {
     return {
         type: 'ContinueStatement',

@@ -133,3 +133,7 @@
         return x;
     } while (x)
 })();
+
+(function() {
+    return u().y++;
+})();

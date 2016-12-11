@@ -43,7 +43,9 @@ import {
     isTryStatement,
     isBlockStatement,
     isWhileStatement,
-    isDoWhileStatement
+    isDoWhileStatement,
+    isUpdateExpression,
+    update
 } from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
@@ -172,6 +174,8 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
         return expression;
     } else if (isBlockStatement(expression)) {
         return block(substituteAll(expression.body, context));
+    } else if (isUpdateExpression(expression)) {
+        return update(substitute(expression.argument, context), expression.operator, expression.prefix);
     } else {
         throw new Error('UNKNOWN');
     }

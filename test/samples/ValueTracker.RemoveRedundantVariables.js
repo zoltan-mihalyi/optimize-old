@@ -153,3 +153,8 @@
         return x;
     } while (x)
 })();
+
+(function() {
+    var x = u();
+    return x.y++;
+})();
