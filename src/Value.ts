@@ -6,7 +6,7 @@ export abstract class Value {
     abstract product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value;
 }
 
-abstract class SingleValue extends Value {
+export abstract class SingleValue extends Value {
     or(value:Value):Value {
         if (value instanceof SingleValue) {
             return FiniteSetOfValues.create([this, value]);
@@ -44,6 +44,15 @@ export class ObjectValue extends SingleValue {
     resolve(property:string):Value {
         return this.properties[property] || unknown;
     }
+
+    set(property:any, value:Value):ObjectValue {
+        const map:ValueMap = Object.create(null);
+        for (let i in this.properties) {
+            map[i] = this.properties[i];
+        }
+        map[property] = value;
+        return new ObjectValue(this.objectClass, map);
+    }
 }
 
 export class FiniteSetOfValues extends Value {
@@ -65,11 +74,16 @@ export class FiniteSetOfValues extends Value {
     }
 
     map(mapper:(value:SingleValue)=>Value):Value {
-        var mapped:SingleValue[] = [];
-        for (var i = 0; i < this.values.length; i++) {
-            mapped.push(mapper(this.values[i]));
+        let mapped:Value;
+        for (let i = 0; i < this.values.length; i++) {
+            let value = mapper(this.values[i]);
+            if (!mapped) {
+                mapped = value;
+            } else {
+                mapped = mapped.or(value);
+            }
         }
-        return FiniteSetOfValues.create(mapped);
+        return mapped;
     }
 
     product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
@@ -87,16 +101,21 @@ export class FiniteSetOfValues extends Value {
     }
 
     private setProduct(other:FiniteSetOfValues, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
-        var values:Value[] = [];
+        let mapped:Value;
         for (var i = 0; i < this.values.length; i++) {
             var left = this.values[i];
             for (var j = 0; j < other.values.length; j++) {
                 var right = other.values[j];
-                values.push(mapper(left, right));
+                let value = mapper(left, right);
+                if (!mapped) {
+                    mapped = value;
+                } else {
+                    mapped = mapped.or(value);
+                }
             }
         }
 
-        return FiniteSetOfValues.create(values);
+        return mapped;
     }
 }
 

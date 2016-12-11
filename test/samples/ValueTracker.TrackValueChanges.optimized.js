@@ -23,4 +23,8 @@
         console.log(2);
     }
     console.log(r);
+
+    var s = {};
+    s++;
+    console.log(s);
 })();

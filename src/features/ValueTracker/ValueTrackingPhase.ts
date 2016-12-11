@@ -4,8 +4,6 @@ import {
     isLoop,
     isIfStatement,
     isBinaryExpressionLike,
-    getValueInformation,
-    isAssignmentExpression,
     isUpdateExpression,
     isExpressionStatement,
     isIdentifier,
@@ -13,9 +11,13 @@ import {
     isVariableDeclarator,
     isRealIdentifier,
     isDeclared,
-    isTryStatement
+    isTryStatement,
+    isLHS,
+    isMemberExpression,
+    isStaticMemberExpression,
+    safeValue
 } from "../../Util";
-import {unknown, KnownValue, Value} from "../../Value";
+import {unknown, KnownValue, Value, ObjectValue, SingleValue} from "../../Value";
 import AstNode = require("../../AstNode");
 import Variable = require("./Variable");
 export = function (feature:Feature<Variable>) {
@@ -28,22 +30,17 @@ export = function (feature:Feature<Variable>) {
             return;
         }
         const init = node.expression.init || literal(void 0);
-        handleAssignment(node, init, id, '=', init);
+        handleAssignment(node, init, id, '=', safeValue(init));
     });
 
     valueTrackingPhase.after.onAssignmentExpression((node:AstNode<AssignmentExpression, Variable>) => {
         const left = node.expression.left;
-        if (isIdentifier(left)) {
-            handleAssignment(node, node.expression, left, node.expression.operator, node.expression.right);
-        }
+        handleAssignment(node, node.expression, left, node.expression.operator, safeValue(node.expression.right));
     });
 
     valueTrackingPhase.after.onUpdateExpression((node:AstNode<UpdateExpression, Variable>) => {
-        const arg = node.expression.argument;
-        if (isIdentifier(arg)) {
-            const resolvedOperator = node.expression.operator[0] + '=';
-            handleAssignment(node, node.expression, arg, resolvedOperator, literal(1));
-        }
+        const resolvedOperator = node.expression.operator[0] + '=';
+        handleAssignment(node, node.expression, node.expression.argument, resolvedOperator, new KnownValue(1));
     });
 
     valueTrackingPhase.after.onIdentifier((node:AstNode<Identifier, Variable>) => {
@@ -103,16 +100,24 @@ function isRealUsage(identifier:Identifier, parentExpression:Expression) {
     if (isFunctionLike(parentExpression)) {
         return false; //function declaration
     }
-
-    if (isAssignmentExpression(parentExpression)) {
-        if (parentExpression.left === identifier) {
-            return false; //LHS
-        }
-    }
-    return true;
+    return !isLHS(identifier, parentExpression);
 }
 
-function handleAssignment(node:AstNode<Expression, Variable>, source:Expression, id:Identifier, operator:string, value:Expression) {
+function handleAssignment(node:AstNode<Expression, Variable>, source:Expression, expression:Expression, operator:string, rightValues:Value, setter?:(l:SingleValue, v:SingleValue)=>Value, getter?:(l:SingleValue)=>Value) {
+    let id:Identifier;
+    let propertyValues:Value;
+    if (isIdentifier(expression)) {
+        id = expression;
+    } else if (isMemberExpression(expression)) {
+        const object = expression.object;
+        propertyValues = isStaticMemberExpression(expression) ? new KnownValue(expression.property.name) : safeValue(expression.property); //todo dup
+        if (isIdentifier(object)) {
+            id = object;
+        } else {
+            return;
+        }
+    }
+
     if (!node.scope.hasInCurrentFunction(id)) {
         return;
     }
@@ -129,16 +134,49 @@ function handleAssignment(node:AstNode<Expression, Variable>, source:Expression,
     if (variable.canBeModifiedInLoop(node)) {
         newValue = unknown;
     } else {
-        const valueInfo = getValueInformation(value) || unknown;
         if (operator === '=') {
-            newValue = valueInfo;
+            if (propertyValues) {
+                newValue = topValue.value.product(propertyValues, (left, prop) => {
+                    if (!(left instanceof ObjectValue)) {
+                        return left;
+                    }
+
+                    if (prop instanceof KnownValue) { //todo dup
+                        return left.set(prop.value, rightValues);
+                    }
+                    return unknown;
+                });
+            } else {
+                newValue = rightValues;
+            }
         } else {
             const mapper = new Function('current,value', `return current ${operator} value;`) as (x, y)=>any;
-            newValue = topValue.value.product(valueInfo, (left, right) => {
-                if (left instanceof KnownValue && right instanceof KnownValue) {
-                    return new KnownValue(mapper(left.value, right.value));
+            newValue = topValue.value.product(rightValues, (left, right) => {
+                if (!(right instanceof KnownValue)) {
+                    return unknown;
                 }
-                return unknown;
+
+                if (propertyValues) {
+                    if (!(left instanceof ObjectValue)) {
+                        return left;
+                    }
+                    return propertyValues.map(prop => {
+                        if (prop instanceof KnownValue) {
+                            const leftResolved = left.resolve(prop.value);
+                            if (leftResolved instanceof KnownValue) {
+                                return left.set(prop.value, new KnownValue(mapper(leftResolved.value, right.value)));
+                            } else {
+                                return left.set(prop.value, unknown);
+                            }
+                        }
+                        return unknown;
+                    });
+                } else {
+                    if (left instanceof KnownValue) {
+                        return new KnownValue(mapper(left.value, right.value));
+                    }
+                    return unknown;
+                }
             });
         }
     }

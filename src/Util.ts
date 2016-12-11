@@ -1,4 +1,4 @@
-import {KnownValue, Value, ObjectValue, ObjectClass, ValueMap} from "./Value";
+import {KnownValue, Value, ObjectValue, ObjectClass, ValueMap, unknown} from "./Value";
 import AstNode = require("./AstNode");
 import Variable = require("./features/ValueTracker/Variable");
 export function isLiteral(e:Expression):e is Literal {
@@ -182,6 +182,10 @@ export function getValueInformation(e:Expression):Value {
     return null;
 }
 
+export function safeValue(e:Expression):Value {
+    return getValueInformation(e) || unknown;
+}
+
 export function isClean(e:Expression) {
     if (isLiteralLike(e)) {
         return true;
@@ -214,6 +218,15 @@ export function isRealIdentifier(expression:Expression, parentExpression:Express
         return false;
     }
     return !(isMemberExpression(parentExpression) && parentExpression.property === expression && !parentExpression.computed);
+}
+
+export function isLHS(expression:Expression, parentExpression:Expression):boolean {
+    if (isAssignmentExpression(parentExpression)) {
+        if (parentExpression.left === expression) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function isLiteralLike(e:Expression):boolean {

@@ -27,4 +27,8 @@
         console.log(r);
     }
     console.log(r);
+
+    var s = {};
+    s++;
+    console.log(s);
 })();
