@@ -153,6 +153,21 @@ export function isTryStatement(e:Expression):e is TryStatement {
     return e.type === 'TryStatement';
 }
 
+export function isRealUsage(identifier:Identifier, parentExpression:Expression) {
+    if (!isRealIdentifier(identifier, parentExpression)) {
+        return false; //only property
+    }
+
+    if (isVariableDeclarator(parentExpression) && parentExpression.id === identifier) {
+        return false; //just initializing
+    }
+
+    if (isFunctionLike(parentExpression)) {
+        return false; //function declaration
+    }
+    return !isLHS(identifier, parentExpression);
+}
+
 export function getValueInformation(e:Expression):Value {
     if (e.calculatedValue) {
         return e.calculatedValue;

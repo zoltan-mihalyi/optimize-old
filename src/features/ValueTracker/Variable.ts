@@ -18,22 +18,27 @@ class Variable {
         });
     }
 
-    setWriteInfo(modified:Identifier, node:AstNode<Expression,any>):void {
-        let current = node;
-        while (current.parent) {
-            current = current.parent;
-            if (isFunctionLike(current.expression)) {
-                break;
-            }
-            if (isLoop(current.expression)) {
-                this.writesInLoops.push(current.expression);
+    setAccessInfo(modified:Identifier, node:AstNode<Expression,any>, write:boolean):void {
+        if (write) {
+            let current = node;
+            while (current.parent) {
+                current = current.parent;
+                if (isFunctionLike(current.expression)) {
+                    break;
+                }
+                if (isLoop(current.expression)) {
+                    this.writesInLoops.push(current.expression);
+                }
             }
         }
 
         if (!node.scope.hasInCurrentFunction(modified)) {
-            this.writesFromFunctionOnly = false;
+            if (write) {
+                this.writesFromFunctionOnly = false;
+            }
             this.accessFromFunctionOnly = false;
         }
+        this.usages++;
     }
 
     merge(newScopes:Expression[]):void {
@@ -51,18 +56,13 @@ class Variable {
         return this.values[this.values.length - 1];
     }
 
-    markUsed(node:AstNode<Identifier, any>) {
+    markUsed() {
         const sources = [this.values[0].sources[0], ...this.topValue().sources];
         for (let i = 0; i < sources.length; i++) {
             const obj = sources[i];
             if (this.usedSources.indexOf(obj) === -1) {
                 this.usedSources.push(obj);
             }
-        }
-        this.usages++;
-
-        if (!node.scope.hasInCurrentFunction(node.expression)) {
-            this.accessFromFunctionOnly = false;
         }
     }
 
@@ -90,7 +90,7 @@ class Variable {
     }
 
     isUsed(expression:Expression):boolean {
-        return this.usedSources.indexOf(expression) !== -1;
+        return this.usages > 0 && this.usedSources.indexOf(expression) !== -1;
     }
 
     isInitialized():boolean {

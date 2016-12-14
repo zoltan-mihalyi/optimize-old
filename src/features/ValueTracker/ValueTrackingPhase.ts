@@ -8,14 +8,12 @@ import {
     isExpressionStatement,
     isIdentifier,
     literal,
-    isVariableDeclarator,
-    isRealIdentifier,
     isDeclared,
     isTryStatement,
-    isLHS,
     isMemberExpression,
     isStaticMemberExpression,
-    safeValue
+    safeValue,
+    isRealUsage
 } from "../../Util";
 import {unknown, KnownValue, Value, ObjectValue, SingleValue} from "../../Value";
 import AstNode = require("../../AstNode");
@@ -57,14 +55,11 @@ export = function (feature:Feature<Variable>) {
         }
         variable.merge(getScopes(node));
         const topValue = variable.topValue();
-        if (variable.functionDeclaration && node.scope.inside(variable.functionDeclaration)) {
-            return; //recursion
-        }
         if (isExpressionStatement(parentExpression)) {
             node.parent.remove();
             return;
         }
-        variable.markUsed(node);
+        variable.markUsed();
 
         if (canSubstitute(node, variable)) {
             node.setCalculatedValue(topValue.value);
@@ -84,21 +79,6 @@ function canSubstitute(node:AstNode<Identifier, Variable>, variable:Variable):bo
     }
 
     return variable.isSafe(true) && !variable.canBeModifiedInLoop(node);
-}
-
-function isRealUsage(identifier:Identifier, parentExpression:Expression) {
-    if (!isRealIdentifier(identifier, parentExpression)) {
-        return false; //only property
-    }
-
-    if (isVariableDeclarator(parentExpression) && parentExpression.id === identifier) {
-        return false; //just initializing
-    }
-
-    if (isFunctionLike(parentExpression)) {
-        return false; //function declaration
-    }
-    return !isLHS(identifier, parentExpression);
 }
 
 function handleAssignment(node:AstNode<Expression, Variable>, source:Expression, expression:Expression, operator:string, rightValues:Value, setter?:(l:SingleValue, v:SingleValue)=>Value, getter?:(l:SingleValue)=>Value) {
