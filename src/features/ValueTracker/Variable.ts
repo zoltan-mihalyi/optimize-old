@@ -1,7 +1,7 @@
 import LocalValue = require("./LocalValue");
 import AstNode = require("../../AstNode");
 import {Value} from "../../Value";
-import {isFunctionLike, isLoop, isVariableDeclarator} from "../../Util";
+import {isFunctionLike, isLoop} from "../../Util";
 class Variable {
     private writesFromFunctionOnly:boolean = true;
     private accessFromFunctionOnly:boolean = true;
@@ -72,21 +72,6 @@ class Variable {
 
     isSafe(writeOnly:boolean):boolean {
         return writeOnly ? this.writesFromFunctionOnly : this.accessFromFunctionOnly;
-    }
-
-    oneWrite():boolean {
-        if (this.values.length !== 1) {
-            return;
-        }
-        let sources = this.values[0].sources;
-        if (sources.length === 1) {
-            return true;
-        }
-        if (sources.length === 2) {
-            let firstSource = sources[0];
-            return isVariableDeclarator(firstSource) && firstSource.init === sources[1];
-        }
-        return false;
     }
 
     canBeModifiedInLoop(node?:AstNode<Expression,any>):boolean {

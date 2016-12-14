@@ -39,14 +39,6 @@
     (function() {
         y = 3;
     })
-
-    var a = 2;
-    (function() {
-        console.log(a);
-    })();
-    (function(a) {
-        console.log(a);
-    })(3);
 })();
 
 (function() {
@@ -63,9 +55,8 @@
         console.log(a3);
     });
 
-    var b = 1;
     console.log(getB());
-    b = 2;
+    var b = 1;
 
     function getB() {
         return b;
