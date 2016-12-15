@@ -97,8 +97,10 @@ class Variable {
         return this.initialized;
     }
 
-    updateValue(scope:Expression, expression:Expression, value:Value, replace:boolean) {
-        this.initialized = true;
+    updateValue(scope:Expression, expression:Expression, value:Value, replace:boolean, skipInit?:boolean) {
+        if (!skipInit) {
+            this.initialized = true;
+        }
         let topValue = this.topValue();
         if (topValue.scope === scope) {
             if (replace) {

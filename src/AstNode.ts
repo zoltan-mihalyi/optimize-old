@@ -52,7 +52,7 @@ class AstNode<T extends Expression, S> {
         } else if (value instanceof UnknownValue) {
             return;
         }
-        if (!expression.calculatedValue) {
+        if (!expression.calculatedValue || !value.equals(expression.calculatedValue)) {
             expression.calculatedValue = value;
             this.markChanged();
         }

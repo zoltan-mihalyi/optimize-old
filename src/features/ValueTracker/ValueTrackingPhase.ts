@@ -13,9 +13,10 @@ import {
     isMemberExpression,
     isStaticMemberExpression,
     safeValue,
-    isRealUsage
+    isRealUsage,
+    getPropertyValue
 } from "../../Util";
-import {unknown, KnownValue, Value, ObjectValue, SingleValue} from "../../Value";
+import {unknown, KnownValue, Value, ObjectValue, IterableValue} from "../../Value";
 import AstNode = require("../../AstNode");
 import Variable = require("./Variable");
 export = function (feature:Feature<Variable>) {
@@ -53,8 +54,10 @@ export = function (feature:Feature<Variable>) {
         if (!variable) {
             return;
         }
-        variable.merge(getScopes(node));
+        const myScopes = getScopes(node);
+        variable.merge(myScopes);
         const topValue = variable.topValue();
+
         if (isExpressionStatement(parentExpression)) {
             node.parent.remove();
             return;
@@ -64,6 +67,37 @@ export = function (feature:Feature<Variable>) {
         if (canSubstitute(node, variable)) {
             node.setCalculatedValue(topValue.value);
         }
+
+        const objResolved = topValue.value.map(val => {
+            if (val instanceof ObjectValue) {
+                if (isMemberExpression(parentExpression)) {
+                    const propertyValue = getPropertyValue(parentExpression);
+
+                    let allClean = true;
+                    if (propertyValue instanceof IterableValue) {
+                        propertyValue.each(prop => {
+                            if (prop instanceof KnownValue) {
+                                if (!val.isPropertyClean(prop.value)) {
+                                    allClean = false;
+                                }
+                            } else {
+                                allClean = false;
+                            }
+                        });
+                    } else {
+                        allClean = false;
+                    }
+
+                    if (allClean) {
+                        return val;
+                    }
+                }
+                return val.noKnownProperties();
+            }
+            return val;
+        });
+
+        variable.updateValue(myScopes[myScopes.length - 1], expression, objResolved, true, true);
     });
 };
 
@@ -81,7 +115,7 @@ function canSubstitute(node:AstNode<Identifier, Variable>, variable:Variable):bo
     return variable.isSafe(true) && !variable.canBeModifiedInLoop(node);
 }
 
-function handleAssignment(node:AstNode<Expression, Variable>, source:Expression, expression:Expression, operator:string, rightValues:Value, setter?:(l:SingleValue, v:SingleValue)=>Value, getter?:(l:SingleValue)=>Value) {
+function handleAssignment(node:AstNode<Expression, Variable>, source:Expression, expression:Expression, operator:string, rightValues:Value) {
     let id:Identifier;
     let propertyValues:Value;
     if (isIdentifier(expression)) {
@@ -114,21 +148,23 @@ function handleAssignment(node:AstNode<Expression, Variable>, source:Expression,
     } else {
         if (operator === '=') {
             if (propertyValues) {
-                newValue = topValue.value.product(propertyValues, (left, prop) => {
-                    if (!(left instanceof ObjectValue)) {
-                        return left;
-                    }
+                newValue = rightValues.map(rval => {
+                    return topValue.value.product(propertyValues, (left, prop) => {
+                        if (!(left instanceof ObjectValue)) {
+                            return left;
+                        }
 
-                    if (prop instanceof KnownValue) { //todo dup
-                        return left.set(prop.value, rightValues);
-                    }
-                    return unknown;
-                });
+                        if (prop instanceof KnownValue) { //todo dup
+                            return left.set(prop.value, rval);
+                        }
+                        return unknown;
+                    });
+                })
             } else {
                 newValue = rightValues;
             }
         } else {
-            const mapper = new Function('current,value', `return current ${operator} value;`) as (x, y)=>any;
+            const mapper = new Function('current,value', `return current ${operator} value;`) as (x, y) => any;
             newValue = topValue.value.product(rightValues, (left, right) => {
                 if (!(right instanceof KnownValue)) {
                     return unknown;
@@ -158,6 +194,13 @@ function handleAssignment(node:AstNode<Expression, Variable>, source:Expression,
             });
         }
     }
+
+    newValue = newValue.map(val => { //todo duplicate?
+        if (val instanceof ObjectValue && !variable.isSafe(false)) {
+            return val.noKnownProperties();
+        }
+        return val;
+    });
 
     variable.updateValue(myTopScope, source, newValue, operator === '=');
 }

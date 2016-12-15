@@ -1,6 +1,6 @@
 import {Feature} from "../Feature";
-import {getValueInformation, isStaticMemberExpression, isLHS, safeValue} from "../Util";
-import {ObjectValue, unknown, KnownValue} from "../Value";
+import {getValueInformation, isLHS, getPropertyValue} from "../Util";
+import {ObjectValue, unknown, KnownValue, Value} from "../Value";
 import AstNode = require("../AstNode");
 
 const feature:Feature<any> = new Feature<any>();
@@ -16,7 +16,8 @@ feature.addPhase().after.onMemberExpression((node:AstNode<MemberExpression, any>
     if (!objectValue) {
         return;
     }
-    const propertyValue = isStaticMemberExpression(expression) ? new KnownValue(expression.property.name) : safeValue(expression.property);
+
+    const propertyValue = getPropertyValue(expression);
     node.setCalculatedValue(objectValue.product(propertyValue, (objValue, propValue) => {
         if (objValue instanceof ObjectValue && propValue instanceof KnownValue) {
             return objValue.resolve(propValue.value);

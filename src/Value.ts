@@ -1,12 +1,25 @@
 export abstract class Value {
-    abstract map(mapper:(value:SingleValue)=>Value):Value;
+    abstract map(mapper:(value:SingleValue) => Value):Value;
 
     abstract or(value:Value):Value;
 
-    abstract product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value;
+    abstract product(other:Value, mapper:(left:SingleValue, right:SingleValue) => Value):Value;
+
+    equals(other:Value):boolean {
+        if (other.constructor !== this.constructor) {
+            return false;
+        }
+        return this.equalsInner(other as this);
+    }
+
+    abstract equalsInner(other:this):boolean;
 }
 
-export abstract class SingleValue extends Value {
+export abstract class IterableValue extends Value {
+    abstract each(callback:(value:SingleValue) => void):void;
+}
+
+export abstract class SingleValue extends IterableValue {
     or(value:Value):Value {
         if (value instanceof SingleValue) {
             return FiniteSetOfValues.create([this, value]);
@@ -15,11 +28,15 @@ export abstract class SingleValue extends Value {
         }
     }
 
-    map(mapper:(value:SingleValue)=>Value):Value {
+    map(mapper:(value:SingleValue) => Value):Value {
         return mapper(this);
     }
 
-    product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
+    each(callback:(value:SingleValue) => void):void {
+        callback(this);
+    }
+
+    product(other:Value, mapper:(left:SingleValue, right:SingleValue) => Value):Value {
         return other.map(rval => mapper(this, rval));
     }
 }
@@ -27,6 +44,10 @@ export abstract class SingleValue extends Value {
 export class KnownValue extends SingleValue {
     constructor(public value:any) {
         super();
+    }
+
+    equalsInner(other:KnownValue) {
+        return other.value === this.value;
     }
 }
 
@@ -41,6 +62,10 @@ export class ObjectValue extends SingleValue {
         super();
     }
 
+    isPropertyClean(property:string):boolean {
+        return Object.prototype.hasOwnProperty.call(this.properties, property);
+    }
+
     resolve(property:string):Value {
         return this.properties[property] || unknown;
     }
@@ -53,9 +78,29 @@ export class ObjectValue extends SingleValue {
         map[property] = value;
         return new ObjectValue(this.objectClass, map);
     }
+
+    noKnownProperties():ObjectValue {
+        return new ObjectValue(this.objectClass, Object.create(null));
+    }
+
+    equalsInner(other:ObjectValue):boolean {
+        return this.equalsAllProps(other) && other.equalsAllProps(this);
+    }
+
+    private equalsAllProps(other:ObjectValue):boolean {
+        for (let i in this.properties) {
+            if (!other.properties[i]) {
+                return false;
+            }
+            if (!other.properties[i].equals(this.properties[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
-export class FiniteSetOfValues extends Value {
+export class FiniteSetOfValues extends IterableValue {
     static create(values:SingleValue[]):Value {
         if (allSameAndKnown(values)) {
             return values[0];
@@ -73,7 +118,7 @@ export class FiniteSetOfValues extends Value {
         }
     }
 
-    map(mapper:(value:SingleValue)=>Value):Value {
+    map(mapper:(value:SingleValue) => Value):Value {
         let mapped:Value;
         for (let i = 0; i < this.values.length; i++) {
             let value = mapper(this.values[i]);
@@ -86,7 +131,13 @@ export class FiniteSetOfValues extends Value {
         return mapped;
     }
 
-    product(other:Value, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
+    each(callback:(value:SingleValue) => void):void {
+        for (let i = 0; i < this.values.length; i++) {
+            callback(this.values[i]);
+        }
+    }
+
+    product(other:Value, mapper:(left:SingleValue, right:SingleValue) => Value):Value {
         if (other instanceof SingleValue) {
             return this.map(lval => mapper(lval, other));
         } else if (other instanceof FiniteSetOfValues) {
@@ -96,11 +147,23 @@ export class FiniteSetOfValues extends Value {
         }
     }
 
+    equalsInner(other:FiniteSetOfValues) {
+        if (this.values.length !== other.values.length) {
+            return false;
+        }
+        for (let i = 0; i < this.values.length; i++) {
+            if (!this.values[i].equals(other.values[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private constructor(private values:SingleValue[]) {
         super();
     }
 
-    private setProduct(other:FiniteSetOfValues, mapper:(left:SingleValue, right:SingleValue)=>Value):Value {
+    private setProduct(other:FiniteSetOfValues, mapper:(left:SingleValue, right:SingleValue) => Value):Value {
         let mapped:Value;
         for (var i = 0; i < this.values.length; i++) {
             var left = this.values[i];
@@ -148,6 +211,10 @@ export class UnknownValue extends Value {
 
     product():Value {
         return this;
+    }
+
+    equalsInner(other:UnknownValue) {
+        return true;
     }
 }
 

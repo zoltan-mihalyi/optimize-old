@@ -45,6 +45,33 @@
 })();
 
 (function() {
+    var obj1 = {
+        x: 1
+    };
+    console.log(obj1.x);
+    obj1.setX(2);
+    console.log(obj1.x);
+
+    var obj2 = {
+        x: 1
+    };
+    console.log(obj2.x);
+    setX(obj2, 2);
+    console.log(obj2.x);
+
+    var obj3 = {
+        x: 1
+    };
+    console.log(obj3.x);
+    setObj3X(2);
+    console.log(obj3.x);
+
+    function setObj3X(x) {
+        obj3.x = x;
+    }
+})();
+
+(function() {
     var obj = {
         x: 1,
         y: 2
@@ -85,7 +112,6 @@
         x: 1,
         y: 2
     };
-    obj.z++;
 
     var p = 'x';
     if (u()) {

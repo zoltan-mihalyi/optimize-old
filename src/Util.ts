@@ -269,6 +269,10 @@ export function isDeclared(node:AstNode<VariableDeclarator, Variable>):boolean {
     return isBlockScoped(node) ? node.scope.hasInCurrentBlock(id) : node.scope.hasInCurrentFunction(id);
 }
 
+export function getPropertyValue(expression:MemberExpression) {
+    return isStaticMemberExpression(expression) ? new KnownValue(expression.property.name) : safeValue(expression.property);
+}
+
 export function returnStatement(argument?:Expression):ReturnStatement {
     return {
         type: 'ReturnStatement',
