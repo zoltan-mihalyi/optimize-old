@@ -182,11 +182,11 @@ export function getValueInformation(e:Expression):Value {
         return new ObjectValue(ObjectClass.Function);
     }
     if (isObjectExpression(e)) {
-        let map:ValueMap = {};
+        let map:ValueMap = Object.create(null);
         for (let i = 0; i < e.properties.length; i++) {
             const property = e.properties[i];
             if (isStaticProperty(property)) {
-                map[property.key.name] = getValueInformation(property.value);
+                map[property.key.name] = safeValue(property.value);
             } else {
                 map = void 0;
                 break;

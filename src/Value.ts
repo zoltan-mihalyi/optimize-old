@@ -84,7 +84,7 @@ export class ObjectValue extends SingleValue {
     }
 
     equalsInner(other:ObjectValue):boolean {
-        return this.equalsAllProps(other) && other.equalsAllProps(this);
+        return this.objectClass === other.objectClass && this.equalsAllProps(other) && other.equalsAllProps(this);
     }
 
     private equalsAllProps(other:ObjectValue):boolean {
@@ -102,9 +102,12 @@ export class ObjectValue extends SingleValue {
 
 export class FiniteSetOfValues extends IterableValue {
     static create(values:SingleValue[]):Value {
-        if (allSameAndKnown(values)) {
-            return values[0];
+        const withoutDuplicates = unique(values);
+
+        if (withoutDuplicates.length === 1) {
+            return withoutDuplicates[0];
         }
+
         return new FiniteSetOfValues(values);
     }
 
@@ -182,20 +185,22 @@ export class FiniteSetOfValues extends IterableValue {
     }
 }
 
-function allSameAndKnown(values:SingleValue[]):boolean {
-    var first = values[0];
-    if (first instanceof KnownValue) {
-        for (var i = 1; i < values.length; i++) {
-            var value = values[i];
-            if (value instanceof KnownValue) {
-                if (first.value !== value.value) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
+function unique(values:SingleValue[]):SingleValue[] {
+    const result = [values[0]];
+    for (let i = 1; i < values.length; i++) {
+        const value = values[i];
+        if (!contains(result, value)) {
+            result.push(value);
         }
-        return true;
+    }
+    return result;
+}
+
+function contains(values:SingleValue[], value:SingleValue):boolean {
+    for (let i = 0; i < values.length; i++) {
+        if (values[i].equals(value)) {
+            return true;
+        }
     }
     return false;
 }
