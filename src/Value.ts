@@ -108,7 +108,7 @@ export class FiniteSetOfValues extends IterableValue {
             return withoutDuplicates[0];
         }
 
-        return new FiniteSetOfValues(values);
+        return new FiniteSetOfValues(withoutDuplicates);
     }
 
     or(value:Value):Value {
