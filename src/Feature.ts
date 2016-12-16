@@ -81,6 +81,10 @@ class FeatureStore<T> {
         this.on('MemberExpression', callback);
     }
 
+    onSwitchStatement(callback:Callback<SwitchStatement,T>) {
+        this.on('SwitchStatement', callback);
+    }
+
     private on(type:string, callback:Callback<Expression,T>) {
         if (!this.store[type]) {
             this.store[type] = [callback];

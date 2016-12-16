@@ -12,11 +12,17 @@ export abstract class Value {
         return this.equalsInner(other as this);
     }
 
-    abstract equalsInner(other:this):boolean;
+    protected abstract equalsInner(other:this):boolean;
 }
 
 export abstract class IterableValue extends Value {
     abstract each(callback:(value:SingleValue) => void):void;
+}
+
+export const enum ComparisonResult{
+    TRUE,
+    FALSE,
+    UNKNOWN
 }
 
 export abstract class SingleValue extends IterableValue {
@@ -39,6 +45,15 @@ export abstract class SingleValue extends IterableValue {
     product(other:Value, mapper:(left:SingleValue, right:SingleValue) => Value):Value {
         return other.map(rval => mapper(this, rval));
     }
+
+    compareTo(other:SingleValue):ComparisonResult {
+        if (other.constructor !== this.constructor) {
+            return ComparisonResult.FALSE;
+        }
+        return this.compareInner(other as this);
+    }
+
+    protected abstract compareInner(other:this):ComparisonResult;
 }
 
 export class KnownValue extends SingleValue {
@@ -46,8 +61,12 @@ export class KnownValue extends SingleValue {
         super();
     }
 
-    equalsInner(other:KnownValue) {
+    protected equalsInner(other:KnownValue) {
         return other.value === this.value;
+    }
+
+    protected compareInner(other:this):ComparisonResult {
+        return this.value === other.value ? ComparisonResult.TRUE : ComparisonResult.FALSE;
     }
 }
 
@@ -83,8 +102,16 @@ export class ObjectValue extends SingleValue {
         return new ObjectValue(this.objectClass, Object.create(null));
     }
 
-    equalsInner(other:ObjectValue):boolean {
+    protected equalsInner(other:ObjectValue):boolean {
         return this.objectClass === other.objectClass && this.equalsAllProps(other) && other.equalsAllProps(this);
+    }
+
+    protected compareInner(other:this):ComparisonResult {
+        if (this.objectClass !== other.objectClass) {
+            return ComparisonResult.FALSE;
+        } else {
+            return ComparisonResult.UNKNOWN;
+        }
     }
 
     private equalsAllProps(other:ObjectValue):boolean {
@@ -150,7 +177,7 @@ export class FiniteSetOfValues extends IterableValue {
         }
     }
 
-    equalsInner(other:FiniteSetOfValues) {
+    protected equalsInner(other:FiniteSetOfValues) {
         if (this.values.length !== other.values.length) {
             return false;
         }
@@ -218,7 +245,7 @@ export class UnknownValue extends Value {
         return this;
     }
 
-    equalsInner(other:UnknownValue) {
+    protected equalsInner(other:UnknownValue) {
         return true;
     }
 }

@@ -137,6 +137,9 @@ interface TryStatement extends Expression {
     finalizer:BlockStatement;
 }
 
+interface BreakStatement extends Expression {
+}
+
 interface CatchClause extends Expression {
     param:Identifier;
     body:BlockStatement;
@@ -145,12 +148,12 @@ interface CatchClause extends Expression {
 interface NewExpression extends CallExpression {
 }
 
-interface SwitchStatement extends Expression{
+interface SwitchStatement extends Expression {
     discriminant:Expression;
     cases:SwitchCase[];
 }
 
-interface SwitchCase extends Expression{
+interface SwitchCase extends Expression {
     test:Expression;
     consequent:Expression[];
 }

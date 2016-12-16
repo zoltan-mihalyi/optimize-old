@@ -169,6 +169,10 @@ export function isTryStatement(e:Expression):e is TryStatement {
     return e.type === 'TryStatement';
 }
 
+export function isBreak(e:Expression):e is BreakStatement {
+    return e.type === 'BreakStatement';
+}
+
 export function isRealUsage(identifier:Identifier, parentExpression:Expression) {
     if (!isRealIdentifier(identifier, parentExpression)) {
         return false; //only property

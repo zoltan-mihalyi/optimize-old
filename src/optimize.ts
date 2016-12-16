@@ -4,6 +4,7 @@ import reduceTailRecursion = require('./features/ReduceTailRecursion');
 import calculateArithmetic = require('./features/CalculateArithmetic');
 import resolvePropertyAccess = require('./features/ResolvePropertyAccess');
 import reduceConditionals = require('./features/ReduceConditionals');
+import reduceSwitchCase = require('./features/ReduceSwitchCase');
 import reduceLogical = require('./features/ReduceLogical');
 import valueTracker = require('./features/ValueTracker/ValueTracker');
 import {Feature, Phase} from "./Feature";
@@ -16,6 +17,7 @@ const features:Feature<any>[] = [
     calculateArithmetic,
     resolvePropertyAccess,
     reduceConditionals,
+    reduceSwitchCase,
     reduceLogical,
     valueTracker
 ];
