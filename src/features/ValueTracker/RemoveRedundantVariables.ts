@@ -45,7 +45,14 @@ import {
     isWhileStatement,
     isDoWhileStatement,
     isUpdateExpression,
-    update
+    update,
+    isNewExpression,
+    callNew,
+    isThrow,
+    throwStatement,
+    isSwitch,
+    switchStatement,
+    isLogicalExpression
 } from "../../Util";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
@@ -69,6 +76,7 @@ export = function (feature:Feature<Variable>) {
                 const context = {
                     name: identifier.name,
                     replaced: false,
+                    dirty: false,
                     init: init,
                     scope: node.scope
                 };
@@ -97,6 +105,7 @@ export = function (feature:Feature<Variable>) {
 interface Context {
     name:string;
     replaced:boolean;
+    dirty:boolean;
     init:Expression;
     scope:Scope<any>;
 }
@@ -111,6 +120,9 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
     }
     if (context.replaced) {
         return expression;
+    }
+    if (context.dirty) {
+        throw new Error('NOT_CLEAN');
     }
     if (isIdentifier(expression)) {
         if (mode === Mode.PROPERTY) {
@@ -131,6 +143,9 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
     } else if (isVariableDeclarator(expression)) {
         return declarator(expression.id.name, expression.init ? substitute(expression.init, context) : null);
     } else if (isBinaryExpressionLike(expression)) {
+        if (isLogicalExpression(expression)) {
+            return binaryExpression(expression.operator, substitute(expression.left, context), expression.right);
+        }
         return binaryExpression(expression.operator, substitute(expression.left, context), substitute(expression.right, context));
     } else if (isReturnStatement(expression)) {
         return returnStatement(substitute(expression.argument, context));
@@ -138,6 +153,8 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
         return expressionStatement(substitute(expression.expression, context));
     } else if (isCallExpression(expression)) {
         return call(substitute(expression.callee, context), substituteAll(expression.arguments, context));
+    } else if (isNewExpression(expression)) {
+        return callNew(substitute(expression.callee, context), substituteAll(expression.arguments, context));
     } else if (isMemberExpression(expression)) {
         return memberExpression(substitute(expression.object, context), substitute(expression.property, context, Mode.PROPERTY) as Identifier, expression.computed);
     } else if (isUnaryExpression(expression)) {
@@ -176,8 +193,12 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
         return block(substituteAll(expression.body, context));
     } else if (isUpdateExpression(expression)) {
         return update(substitute(expression.argument, context), expression.operator, expression.prefix);
+    } else if (isThrow(expression)) {
+        return throwStatement(substitute(expression.argument, context));
+    } else if (isSwitch(expression)) {
+        return switchStatement(substitute(expression.discriminant, context), expression.cases);
     } else {
-        throw new Error('UNKNOWN');
+        throw new Error('UNKNOWN: ' + expression.type);
     }
 }
 

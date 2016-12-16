@@ -89,6 +89,18 @@ export function isCallExpression(e:Expression):e is CallExpression {
     return e.type === 'CallExpression';
 }
 
+export function isNewExpression(e:Expression):e is NewExpression {
+    return e.type === 'NewExpression';
+}
+
+export function isThrow(e:Expression):e is ThrowStatement {
+    return e.type === 'ThrowStatement';
+}
+
+export function isSwitch(e:Expression):e is SwitchStatement {
+    return e.type === 'SwitchStatement';
+}
+
 export function isUpdateExpression(e:Expression):e is UpdateExpression {
     return e.type === 'UpdateExpression';
 }
@@ -403,6 +415,29 @@ export function call(callee:Expression, args:Expression[]):CallExpression {
         type: 'CallExpression',
         callee: callee,
         arguments: args
+    };
+}
+
+export function callNew(callee:Expression, args:Expression[]):CallExpression {
+    return {
+        type: 'NewExpression',
+        callee: callee,
+        arguments: args
+    };
+}
+
+export function throwStatement(argument:Expression):ThrowStatement {
+    return {
+        type: 'ThrowStatement',
+        argument: argument
+    };
+}
+
+export function switchStatement(discriminant:Expression, cases:SwitchCase[]):SwitchStatement {
+    return {
+        type: 'SwitchStatement',
+        discriminant: discriminant,
+        cases: cases
     };
 }
 

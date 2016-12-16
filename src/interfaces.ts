@@ -142,6 +142,23 @@ interface CatchClause extends Expression {
     body:BlockStatement;
 }
 
+interface NewExpression extends CallExpression {
+}
+
+interface SwitchStatement extends Expression{
+    discriminant:Expression;
+    cases:SwitchCase[];
+}
+
+interface SwitchCase{
+    test:Expression;
+    consequent:Expression[];
+}
+
+interface ThrowStatement extends Expression {
+    argument:Expression;
+}
+
 interface ArrayExpression extends Expression {
     elements:Expression[];
 }

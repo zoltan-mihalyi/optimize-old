@@ -158,3 +158,11 @@
     var x = u();
     return x.y++;
 })();
+
+(function() {
+    var u2 = u();
+    var u1 = u();
+    if (u1 && u2) {
+        return 1;
+    }
+})();

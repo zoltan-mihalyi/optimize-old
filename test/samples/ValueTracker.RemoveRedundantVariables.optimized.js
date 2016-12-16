@@ -137,3 +137,11 @@
 (function() {
     return u().y++;
 })();
+
+(function() {
+    var u2 = u();
+
+    if (u() && u2) {
+        return 1;
+    }
+})();
