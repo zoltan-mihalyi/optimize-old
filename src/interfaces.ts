@@ -193,8 +193,5 @@ interface ForInStatement extends Expression {
 interface ForOfStatement extends ForInStatement {
 }
 
-interface IfStatement extends Expression {
-    test:Expression;
-    consequent:Expression;
-    alternate:Expression;
+interface IfStatement extends ConditionalExpression {
 }

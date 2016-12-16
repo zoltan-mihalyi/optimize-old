@@ -32,3 +32,5 @@ if (u) {
 if (x) {
     console.log(14);
 }
+
+console.log('true');

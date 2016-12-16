@@ -59,7 +59,8 @@ class FeatureStore<T> {
         this.on('UnaryExpression', callback);
     }
 
-    onIfStatement(callback:Callback<IfStatement,T>) {
+    onConditionalLike(callback:Callback<ConditionalExpression,T>) {
+        this.on('ConditionalExpression', callback);
         this.on('IfStatement', callback);
     }
 

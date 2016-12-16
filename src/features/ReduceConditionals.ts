@@ -5,7 +5,7 @@ import AstNode = require("../AstNode");
 
 var feature:Feature<any> = new Feature<any>();
 
-feature.addPhase().before.onIfStatement((node:AstNode<IfStatement, any>) => {
+feature.addPhase().before.onConditionalLike((node:AstNode<IfStatement, any>) => {
     var expression = node.expression;
     var test = expression.test;
     var value = getValueInformation(test);

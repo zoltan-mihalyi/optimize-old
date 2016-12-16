@@ -51,3 +51,5 @@ if (u) {
 if (x) {
     console.log(14);
 }
+
+console.log(1 ? 'true' : 'false');
