@@ -150,7 +150,7 @@ interface SwitchStatement extends Expression{
     cases:SwitchCase[];
 }
 
-interface SwitchCase{
+interface SwitchCase extends Expression{
     test:Expression;
     consequent:Expression[];
 }

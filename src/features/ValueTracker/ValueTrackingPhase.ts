@@ -14,7 +14,8 @@ import {
     isStaticMemberExpression,
     safeValue,
     isRealUsage,
-    getPropertyValue
+    getPropertyValue,
+    isCase
 } from "../../Util";
 import {unknown, KnownValue, Value, ObjectValue, IterableValue} from "../../Value";
 import AstNode = require("../../AstNode");
@@ -213,7 +214,7 @@ function getScopes(node:AstNode<Expression, Variable>):Expression[] {
         const expression = current.parent.expression;
         if (isFunctionLike(expression) || isLoop(expression)
             || (isIfStatement(expression) && expression.test !== current.expression)
-            || isBinaryExpressionLike(expression) || isTryStatement(expression)) {
+            || isBinaryExpressionLike(expression) || isTryStatement(expression) || isCase(expression)) {
             result.unshift(current.expression);
         }
 

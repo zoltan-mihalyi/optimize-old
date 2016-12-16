@@ -101,6 +101,10 @@ export function isSwitch(e:Expression):e is SwitchStatement {
     return e.type === 'SwitchStatement';
 }
 
+export function isCase(e:Expression):e is SwitchCase {
+    return e.type === 'SwitchCase';
+}
+
 export function isUpdateExpression(e:Expression):e is UpdateExpression {
     return e.type === 'UpdateExpression';
 }

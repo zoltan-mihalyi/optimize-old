@@ -96,6 +96,19 @@
     }
     console.log(z);
 
+    var a = 1;
+    switch (u) {
+        case 1:
+            a = 2;
+            break;
+        case 2:
+            console.log(a);
+            a = 3;
+        case 3:
+            console.log(a);
+    }
+    console.log(a);
+
     var y = "abc";
     return {
         y: 1
