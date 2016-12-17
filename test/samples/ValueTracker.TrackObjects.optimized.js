@@ -1,5 +1,10 @@
 (function() {
+    ({
+        x: 1
+    }).y = 2;;
+
     console.log(1);
+    console.log(2);
     console.log(1);
 
     if (u()) {}

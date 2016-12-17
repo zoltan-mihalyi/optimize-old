@@ -15,7 +15,8 @@ import {
     safeValue,
     isRealUsage,
     getPropertyValue,
-    isCase
+    isCase,
+    isLHS
 } from "../../Util";
 import {unknown, KnownValue, Value, ObjectValue, IterableValue} from "../../Value";
 import AstNode = require("../../AstNode");
@@ -78,6 +79,10 @@ export = function (feature:Feature<Variable>) {
             if (val instanceof ObjectValue) {
                 if (isMemberExpression(parentExpression)) {
                     const propertyValue = getPropertyValue(parentExpression);
+
+                    if (isLHS(parentExpression, node.parent.parent.expression)) {
+                        return val;
+                    }
 
                     let allClean = true;
                     if (propertyValue instanceof IterableValue) {
