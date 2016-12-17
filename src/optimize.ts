@@ -24,7 +24,7 @@ class Walker {
     private scopeMap = new Map<Expression,Scope<any>>();
 
     walk(expression:Expression, phase:Phase<any>):boolean {
-        var astNode = new AstNode(expression, null, null, this.scopeMap);
+        const astNode = new AstNode(expression, null, null, this.scopeMap);
         this.walkInner(astNode, phase);
         return astNode.changed;
     }
@@ -42,10 +42,10 @@ class Walker {
                 if (typeof sub.type === 'string') {
                     this.walkInner(new AstNode(sub, astNode, expression, this.scopeMap, i), phase);
                 } else if (typeof sub.length === 'number') {
-                    for (var j = 0; j < sub.length; j++) {
-                        var obj = sub[j];
+                    for (let j = 0; j < sub.length; j++) {
+                        const obj = sub[j];
                         if (typeof  obj.type === 'string') {
-                            var lengthBefore = sub.length;
+                            const lengthBefore = sub.length;
                             this.walkInner(new AstNode(obj, astNode, sub, this.scopeMap), phase);
                             if (astNode.replaced) {
                                 break;
@@ -63,22 +63,22 @@ class Walker {
 }
 
 function walkFeature(feature:Feature<any>, expression:Expression):boolean {
-    var changed = false;
-    var walker = new Walker();
+    let changed = false;
+    const walker = new Walker();
 
-    for (var j = 0; j < feature.phases.length; j++) {
-        changed = changed || walker.walk(expression, feature.phases[j]);
+    for (let i = 0; i < feature.phases.length; i++) {
+        changed = changed || walker.walk(expression, feature.phases[i]);
     }
     return changed;
 }
 
 export = function (code:string):string {
-    var ast:Expression = recast.parse(code).program;
+    const ast:Expression = recast.parse(code).program;
 
-    var needRun = true;
+    let needRun = true;
     while (needRun) {
         needRun = false;
-        for (var i = 0; i < features.length; i++) {
+        for (let i = 0; i < features.length; i++) {
             needRun = needRun || walkFeature(features[i], ast);
         }
     }

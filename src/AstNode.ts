@@ -34,7 +34,7 @@ class AstNode<T extends Expression, S> {
         console.log('replace ' + recast.print(this.expression).code + ' with ' + expressions.map(e => recast.print(e).code));
 
         if (Array.isArray(this.parentObject)) {
-            var index = this.parentObject.indexOf(this.expression);
+            const index = this.parentObject.indexOf(this.expression);
             this.parentObject.splice.apply(this.parentObject, [index, 1, ...expressions]);
         } else {
             if (expressions.length !== 1) {

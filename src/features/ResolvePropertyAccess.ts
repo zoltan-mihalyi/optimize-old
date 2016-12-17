@@ -1,6 +1,6 @@
 import {Feature} from "../Feature";
 import {getValueInformation, isLHS, getPropertyValue} from "../Util";
-import {ObjectValue, unknown, KnownValue, Value} from "../Value";
+import {ObjectValue, unknown, KnownValue} from "../Value";
 import AstNode = require("../AstNode");
 
 const feature:Feature<any> = new Feature<any>();

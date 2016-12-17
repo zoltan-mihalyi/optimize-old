@@ -3,14 +3,14 @@ import {getValueInformation} from "../Util";
 import {KnownValue, unknown, ObjectValue, ObjectClass, ComparisonResult} from "../Value";
 import AstNode = require("../AstNode");
 
-var feature:Feature<any> = new Feature<any>();
+const feature:Feature<any> = new Feature<any>();
 
 feature.addPhase().after.onBinaryExpressionLike((node:AstNode<BinaryExpression, any>) => {
-    var expression = node.expression;
-    var rightValue = getValueInformation(expression.right);
-    var leftValue = getValueInformation(expression.left);
+    const expression = node.expression;
+    const rightValue = getValueInformation(expression.right);
+    const leftValue = getValueInformation(expression.left);
     if (leftValue && rightValue) {
-        var evaluator = new Function('left,right', `return left ${expression.operator} right;`) as (x, y) => any;
+        const evaluator = new Function('left,right', `return left ${expression.operator} right;`) as (x, y) => any;
         node.setCalculatedValue(leftValue.product(rightValue, (leftValue, rightValue) => {
             if (isStrictEqual() || isEqual()) {
                 const comparisionResult = leftValue.compareTo(rightValue, isStrictEqual());
@@ -42,11 +42,11 @@ feature.addPhase().after.onBinaryExpressionLike((node:AstNode<BinaryExpression, 
 });
 
 feature.addPhase().after.onUnaryExpression((node:AstNode<UnaryExpression, any>) => {
-    var expression = node.expression;
-    var argument = expression.argument;
-    var valueInformation = getValueInformation(argument);
+    const expression = node.expression;
+    const argument = expression.argument;
+    const valueInformation = getValueInformation(argument);
     if (valueInformation) {
-        var mapper = new Function('arg', `return ${expression.operator} arg;`) as (x) => any;
+        const mapper = new Function('arg', `return ${expression.operator} arg;`) as (x) => any;
         node.setCalculatedValue(valueInformation.map(value => {
             if (value instanceof KnownValue) {
                 return new KnownValue(mapper(value.value));

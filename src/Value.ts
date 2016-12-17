@@ -170,10 +170,10 @@ export class FiniteSetOfValues extends IterableValue {
         let mapped:Value;
         for (let i = 0; i < this.values.length; i++) {
             let value = mapper(this.values[i]);
-            if (!mapped) {
-                mapped = value;
-            } else {
+            if (mapped) {
                 mapped = mapped.or(value);
+            } else {
+                mapped = value;
             }
         }
         return mapped;
@@ -213,15 +213,15 @@ export class FiniteSetOfValues extends IterableValue {
 
     private setProduct(other:FiniteSetOfValues, mapper:(left:SingleValue, right:SingleValue) => Value):Value {
         let mapped:Value;
-        for (var i = 0; i < this.values.length; i++) {
-            var left = this.values[i];
-            for (var j = 0; j < other.values.length; j++) {
-                var right = other.values[j];
+        for (let i = 0; i < this.values.length; i++) {
+            const left = this.values[i];
+            for (let j = 0; j < other.values.length; j++) {
+                const right = other.values[j];
                 let value = mapper(left, right);
-                if (!mapped) {
-                    mapped = value;
-                } else {
+                if (mapped) {
                     mapped = mapped.or(value);
+                } else {
+                    mapped = value;
                 }
             }
         }
@@ -263,9 +263,9 @@ export class UnknownValue extends Value {
         return this;
     }
 
-    protected equalsInner(other:UnknownValue) {
+    protected equalsInner() {
         return true;
     }
 }
 
-export var unknown:UnknownValue = new UnknownValue();
+export const unknown:UnknownValue = new UnknownValue();

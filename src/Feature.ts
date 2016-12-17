@@ -5,10 +5,10 @@ class FeatureStore<T> {
     private store:{[idx:string]:Callback<Expression,T>[]} = Object.create(null);
 
     callAll(astNode:AstNode<any,any>):void {
-        var callbacks:Callback<Expression,T>[] = this.store[astNode.expression.type];
+        const callbacks:Callback<Expression,T>[] = this.store[astNode.expression.type];
         if (callbacks) {
-            for (var i = 0; i < callbacks.length; i++) {
-                var callback = callbacks[i];
+            for (let i = 0; i < callbacks.length; i++) {
+                const callback = callbacks[i];
                 callback(astNode);
             }
         }
@@ -103,7 +103,7 @@ export class Feature<T> {
     phases:Phase<T>[] = [];
 
     addPhase():Phase<T> {
-        var phase = new Phase();
+        const phase = new Phase();
         this.phases.push(phase);
         return phase;
     }

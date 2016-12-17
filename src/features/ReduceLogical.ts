@@ -3,14 +3,14 @@ import {getValueInformation} from "../Util";
 import {KnownValue} from "../Value";
 import AstNode = require("../AstNode");
 
-var feature:Feature<any> = new Feature<any>();
+const feature:Feature<any> = new Feature<any>();
 
 feature.addPhase().after.onLogicalExpression((node:AstNode<LogicalExpression, any>)=> {
-    var expression = node.expression;
-    var leftValue = getValueInformation(expression.left);
+    const expression = node.expression;
+    const leftValue = getValueInformation(expression.left);
 
     if (leftValue) {
-        var leftAsBoolean = leftValue.map(value=> {
+        const leftAsBoolean = leftValue.map(value=> {
             if (value instanceof KnownValue) {
                 return new KnownValue(!!value.value);
             } else {
@@ -18,7 +18,7 @@ feature.addPhase().after.onLogicalExpression((node:AstNode<LogicalExpression, an
             }
         });
         if (leftAsBoolean instanceof KnownValue) {
-            var useLeft = leftAsBoolean.value;
+            let useLeft = leftAsBoolean.value;
             if (expression.operator === '&&') {
                 useLeft = !useLeft;
             }

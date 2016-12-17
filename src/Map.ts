@@ -12,7 +12,7 @@ class Map<K,V> {
     }
 
     get(key: K) {
-        var idx = this.keys.indexOf(key);
+        const idx = this.keys.indexOf(key);
         if (idx === -1) {
             throw new Error('Does not contain!');
         }

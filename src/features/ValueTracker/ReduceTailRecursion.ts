@@ -28,7 +28,7 @@ export = function (feature:Feature<Variable>) {
     });
 
     feature.addPhase().before.onCallExpression((node:AstNode<CallExpression, Variable>) => {
-        var callee = node.expression.callee;
+        const callee = node.expression.callee;
 
         if (isReturnStatement(node.parent.expression) && isIdentifier(callee)) {
             const variable = node.scope.get(callee);
@@ -71,7 +71,7 @@ function findBlock(node:AstNode<Expression, Variable>, fd:FunctionDeclaration):A
 }
 
 function swapVars(node:AstNode<Expression,any>, vars:Identifier[], newValues:Expression[]):Expression[] {
-    var result:Expression[] = [];
+    const result:Expression[] = [];
     if (vars.length) {
         let declarations:VariableDeclarator[] = [];
         result.push(declaration(declarations));

@@ -1,5 +1,5 @@
 declare module 'recast' {
-    var anyType:{
+    const anyType:{
         parse:Function;
         print:Function;
     };

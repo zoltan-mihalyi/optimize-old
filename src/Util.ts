@@ -395,17 +395,14 @@ export function expressionStatement(expression:Expression):ExpressionStatement {
 }
 
 export function assignment(left:Expression, right:Expression):ExpressionStatement {
-    var assignment:AssignmentExpression = {
-        type: 'AssignmentExpression',
-        operator: '=',
-        left: left,
-        right: right
-    };
-
-
     return {
         type: 'ExpressionStatement',
-        expression: assignment
+        expression: {
+            type: 'AssignmentExpression',
+            operator: '=',
+            left: left,
+            right: right
+        } as AssignmentExpression
     };
 }
 

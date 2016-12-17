@@ -203,8 +203,8 @@ function substitute(expression:Expression, context:Context, mode?:Mode):Expressi
 }
 
 function substituteAll(expressions:Expression[], context:Context) {
-    var result = [];
-    for (var i = 0; i < expressions.length; i++) {
+    const result = [];
+    for (let i = 0; i < expressions.length; i++) {
         result.push(substitute(expressions[i], context));
     }
     return result;

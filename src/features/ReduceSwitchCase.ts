@@ -3,7 +3,7 @@ import {safeValue, isBreak} from "../Util";
 import {SingleValue, ComparisonResult} from "../Value";
 import AstNode = require("../AstNode");
 
-var feature:Feature<any> = new Feature<any>();
+const feature:Feature<any> = new Feature<any>();
 feature.addPhase().before.onSwitchStatement((node:AstNode<SwitchStatement, any>) => {
     const expression = node.expression;
     const discriminantValue = safeValue(expression.discriminant);
@@ -101,7 +101,7 @@ function containsBreakArray(expressions:Expression[], visited:any[]) {
         return false;
     }
     visited.push(expressions);
-    for (var i = 0; i < expressions.length; i++) {
+    for (let i = 0; i < expressions.length; i++) {
         if (containsBreak(expressions[i], visited)) {
             return true;
         }

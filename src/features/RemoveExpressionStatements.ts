@@ -2,11 +2,11 @@ import {Feature} from "../Feature";
 import {isDirective, isBinaryExpressionLike, isClean} from "../Util";
 import AstNode = require("../AstNode");
 
-var feature = new Feature();
+const feature = new Feature();
 
 feature.addPhase().after.onExpressionStatement((node:AstNode<ExpressionStatement, any>) => {
-    var statement = node.expression;
-    var expression = statement.expression;
+    const statement = node.expression;
+    const expression = statement.expression;
 
     if (isClean(expression) && !isDirective(statement)) {
         node.remove();
