@@ -61,6 +61,16 @@
     function setObj3X(x) {
         obj3.x = x;
     }
+
+    var obj4 = {
+        x: 1,
+        setX: function(x) {
+            this.x = x;
+        }
+    };
+    console.log(1);
+    obj4.setX(2);
+    console.log(obj4.x);
 })();
 
 (function() {

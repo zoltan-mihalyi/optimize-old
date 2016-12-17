@@ -86,7 +86,21 @@ export class ObjectValue extends SingleValue {
     }
 
     isPropertyClean(property:string):boolean {
-        return Object.prototype.hasOwnProperty.call(this.properties, property);
+        let val = this.properties[property];
+        if (!val) {
+            return false;
+        }
+        if (val instanceof IterableValue) {
+            let allClean = true;
+            val.each(v => {
+                if (v instanceof ObjectValue && v.objectClass === ObjectClass.Function) {
+                    allClean = false;
+                }
+            });
+            return allClean;
+        } else {
+            return false;
+        }
     }
 
     resolve(property:string):Value {
