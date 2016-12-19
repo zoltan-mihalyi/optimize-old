@@ -1,6 +1,5 @@
 import recast = require('recast');
 import removeExpressionStatements = require('./features/RemoveExpressionStatements');
-import reduceTailRecursion = require('./features/ReduceTailRecursion');
 import calculateArithmetic = require('./features/CalculateArithmetic');
 import resolvePropertyAccess = require('./features/ResolvePropertyAccess');
 import reduceConditionals = require('./features/ReduceConditionals');
@@ -13,7 +12,6 @@ import AstNode = require("./AstNode");
 
 const features:Feature<any>[] = [
     removeExpressionStatements,
-    reduceTailRecursion,
     calculateArithmetic,
     resolvePropertyAccess,
     reduceConditionals,

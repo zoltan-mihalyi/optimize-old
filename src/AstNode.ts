@@ -1,6 +1,8 @@
 import Scope = require("./Scope");
 import {isBlockStatementLike, literalLike, isUnaryExpression, isLiteral} from "./Util";
 import {Value, KnownValue, UnknownValue} from "./Value";
+import recast = require('recast');
+
 class AstNode<T extends Expression, S> {
     scope:Scope<S>;
     changed:boolean = false;
@@ -28,6 +30,8 @@ class AstNode<T extends Expression, S> {
         if (!this.parent) {
             throw new Error('Parent does not exist.');
         }
+
+        console.log('replace ' + recast.print(this.expression).code + ' with ' + expressions.map(e => recast.print(e).code));
 
         if (Array.isArray(this.parentObject)) {
             var index = this.parentObject.indexOf(this.expression);

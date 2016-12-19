@@ -46,3 +46,7 @@ function hasLabelAndVars(a, a2) {
     }
 }
 hasLabelAndVars(1);
+
+function call(call){
+    return call();
+}
