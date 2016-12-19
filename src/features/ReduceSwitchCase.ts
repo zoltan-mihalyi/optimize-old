@@ -33,7 +33,7 @@ function getMatchingCase(discriminantValue:SingleValue, cases:SwitchCase[], find
 
         const caseValue = safeValue(caseExpression.test);
         if (caseValue instanceof SingleValue) {
-            let comparisonResult = caseValue.compareTo(discriminantValue);
+            let comparisonResult = caseValue.compareTo(discriminantValue, true);
             if (comparisonResult === ComparisonResult.UNKNOWN) {
                 return void 0;
             }

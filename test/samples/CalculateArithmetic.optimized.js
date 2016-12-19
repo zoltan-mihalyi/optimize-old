@@ -25,3 +25,13 @@ console.log(2);
 
 console.log(-[]);
 console.log(-u);
+
+console.log(false);
+console.log(true);
+console.log(false);
+console.log(true);
+console.log(false);
+console.log(true);
+
+console.log(1 == {});
+console.log(Math == 1);

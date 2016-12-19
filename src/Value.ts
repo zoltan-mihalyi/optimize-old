@@ -25,6 +25,10 @@ export const enum ComparisonResult{
     UNKNOWN
 }
 
+function comparisonResultFromBoolean(bool:boolean):ComparisonResult {
+    return bool ? ComparisonResult.TRUE : ComparisonResult.FALSE;
+}
+
 export abstract class SingleValue extends IterableValue {
     or(value:Value):Value {
         if (value instanceof SingleValue) {
@@ -46,14 +50,7 @@ export abstract class SingleValue extends IterableValue {
         return other.map(rval => mapper(this, rval));
     }
 
-    compareTo(other:SingleValue):ComparisonResult {
-        if (other.constructor !== this.constructor) {
-            return ComparisonResult.FALSE;
-        }
-        return this.compareInner(other as this);
-    }
-
-    protected abstract compareInner(other:this):ComparisonResult;
+    abstract compareTo(other:SingleValue, strict:boolean):ComparisonResult;
 }
 
 export class KnownValue extends SingleValue {
@@ -65,8 +62,15 @@ export class KnownValue extends SingleValue {
         return other.value === this.value;
     }
 
-    protected compareInner(other:this):ComparisonResult {
-        return this.value === other.value ? ComparisonResult.TRUE : ComparisonResult.FALSE;
+    compareTo(other:SingleValue, strict:boolean):ComparisonResult {
+        if (other instanceof KnownValue) {
+            let equals = strict ? (this.value === other.value) : (this.value == other.value);
+            return comparisonResultFromBoolean(equals);
+        }
+        if (strict) {
+            return ComparisonResult.FALSE;
+        }
+        return ComparisonResult.UNKNOWN;
     }
 }
 
@@ -77,7 +81,7 @@ export const enum ObjectClass {
 export type ValueMap = {[idx:string]:Value};
 
 export class ObjectValue extends SingleValue {
-    constructor(public objectClass:ObjectClass, private properties:ValueMap = Object.create(null)) {
+    constructor(public objectClass:ObjectClass, private reference:Object, private properties:ValueMap = Object.create(null)) {
         super();
     }
 
@@ -95,20 +99,20 @@ export class ObjectValue extends SingleValue {
             map[i] = this.properties[i];
         }
         map[property] = value;
-        return new ObjectValue(this.objectClass, map);
+        return new ObjectValue(this.objectClass, this.reference, map);
     }
 
     noKnownProperties():ObjectValue {
-        return new ObjectValue(this.objectClass, Object.create(null));
+        return new ObjectValue(this.objectClass, this.reference, Object.create(null));
     }
 
     protected equalsInner(other:ObjectValue):boolean {
         return this.objectClass === other.objectClass && this.equalsAllProps(other) && other.equalsAllProps(this);
     }
 
-    protected compareInner(other:this):ComparisonResult {
-        if (this.objectClass !== other.objectClass) {
-            return ComparisonResult.FALSE;
+    compareTo(other:SingleValue, strict:boolean):ComparisonResult {
+        if (other instanceof ObjectValue) {
+            return comparisonResultFromBoolean(this.reference === other.reference);
         } else {
             return ComparisonResult.UNKNOWN;
         }

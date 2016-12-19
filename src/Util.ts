@@ -196,10 +196,10 @@ export function getValueInformation(e:Expression):Value {
         return new KnownValue(getLiteralLikeValue(e));
     }
     if (isArrayExpression(e)) {
-        return isClean(e) ? new ObjectValue(ObjectClass.Object) : null;
+        return isClean(e) ? new ObjectValue(ObjectClass.Object, {}) : null;
     }
     if (isFunctionLike(e)) {
-        return new ObjectValue(ObjectClass.Function);
+        return new ObjectValue(ObjectClass.Function, {});
     }
     if (isObjectExpression(e)) {
         let map:ValueMap = Object.create(null);
@@ -212,7 +212,7 @@ export function getValueInformation(e:Expression):Value {
                 break;
             }
         }
-        return new ObjectValue(ObjectClass.Object, map);
+        return new ObjectValue(ObjectClass.Object, {}, map);
     }
     return null;
 }

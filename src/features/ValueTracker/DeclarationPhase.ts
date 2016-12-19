@@ -22,7 +22,7 @@ export = function (feature:Feature<Variable>):void {
     });
 
     declarationPhase.before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Variable>) => {
-        node.scope.save(node.expression.id, new Variable(node, false, new ObjectValue(ObjectClass.Function), true, node.expression), false);
+        node.scope.save(node.expression.id, new Variable(node, false, new ObjectValue(ObjectClass.Function, {}), true, node.expression), false);
     });
 
     declarationPhase.before.onBlockStatementLike((node:AstNode<BlockStatement, Variable>) => {
@@ -40,5 +40,5 @@ export = function (feature:Feature<Variable>):void {
 };
 
 function saveApi(node:AstNode<any,Variable>, name:string, type:ObjectClass) {
-    node.scope.save(identifier(name), new Variable(node, false, new ObjectValue(type), false), false);
+    node.scope.save(identifier(name), new Variable(node, false, new ObjectValue(type, {}), false), false);
 }
