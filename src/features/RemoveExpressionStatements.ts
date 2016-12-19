@@ -4,14 +4,14 @@ import AstNode = require("../AstNode");
 
 var feature = new Feature();
 
-feature.addPhase().after.onExpressionStatement((a:AstNode<ExpressionStatement, any>) => {
-    var statement = a.expression;
+feature.addPhase().after.onExpressionStatement((node:AstNode<ExpressionStatement, any>) => {
+    var statement = node.expression;
     var expression = statement.expression;
 
     if (isClean(expression) && !isDirective(statement)) {
-        a.remove();
+        node.remove();
     } else if (isBinaryExpressionLike(expression) && isClean(expression.left) && isClean(expression.right)) {
-        a.remove();
+        node.remove();
     }
 });
 
