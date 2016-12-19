@@ -62,7 +62,11 @@ class Scope<T> {
         }
     }
 
-    isGlobal(id:Identifier) {
+    isGlobal(id?:Identifier) {
+        if(!id){
+            return !this.parent;
+        }
+
         if (!this.parent) {
             return true;
         }

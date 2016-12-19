@@ -111,3 +111,9 @@
         y: 1
     }
 })();
+
+var Reflect;
+console.log(Reflect);
+
+var Reflect2 = 1;
+console.log(1);

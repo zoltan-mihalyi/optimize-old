@@ -26,8 +26,13 @@ export = function (feature:Feature<Variable>) {
 
     valueTrackingPhase.after.onVariableDeclarator((node:AstNode<VariableDeclarator, Variable>) => {
         let id = node.expression.id;
-        if (!node.expression.init && isDeclared(node) && node.scope.get(id).isInitialized()) {
-            return;
+        if (!node.expression.init) {
+            if (node.scope.isGlobal(id)) {
+                return;
+            }
+            if (isDeclared(node) && node.scope.get(id).isInitialized()) {
+                return;
+            }
         }
         const init = node.expression.init || literal(void 0);
         handleAssignment(node, init, id, '=', safeValue(init));

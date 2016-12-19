@@ -18,7 +18,8 @@ export = function (feature:Feature<Variable>):void {
             return;
         }
         const blockScoped = isBlockScoped(node);
-        node.scope.save(node.expression.id, new Variable(node, blockScoped, blockScoped ? unknown : new KnownValue(void 0), false), blockScoped);
+        const value = (blockScoped || node.scope.isGlobal()) ? unknown : new KnownValue(void 0);
+        node.scope.save(node.expression.id, new Variable(node, blockScoped, value, false), blockScoped);
     });
 
     declarationPhase.before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Variable>) => {
