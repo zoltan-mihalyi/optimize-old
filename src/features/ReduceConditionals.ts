@@ -1,3 +1,4 @@
+///<reference path="../interfaces.ts"/>
 import {Feature} from "../Feature";
 import {isBlockStatementLike, getValueInformation} from "../Util";
 import {KnownValue} from "../Value";
@@ -19,10 +20,14 @@ feature.addPhase().before.onConditionalLike((node:AstNode<IfStatement, any>) => 
         });
         if (boolValue instanceof KnownValue) {
             const block = boolValue.value ? expression.consequent : expression.alternate;
-            if (isBlockStatementLike(node.parent.expression) && isBlockStatementLike(block)) {
-                node.replaceWith(block.body);
+            if (block) {
+                if (isBlockStatementLike(node.parent.expression) && isBlockStatementLike(block)) {
+                    node.replaceWith(block.body);
+                } else {
+                    node.replaceWith([block]);
+                }
             } else {
-                node.replaceWith([block]);
+                node.remove();
             }
         }
     }

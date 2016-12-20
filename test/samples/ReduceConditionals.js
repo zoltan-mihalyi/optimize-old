@@ -2,6 +2,10 @@ if (12) {
     console.log(1)
 }
 
+if(0){
+    console.log(0);
+}
+
 if ('') {
     console.log(2);
 } else {
