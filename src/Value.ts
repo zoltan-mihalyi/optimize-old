@@ -1,3 +1,4 @@
+import {ObjectClass} from "./ObjectClasses";
 export abstract class Value {
     abstract map(mapper:(value:SingleValue) => Value):Value;
 
@@ -74,18 +75,18 @@ export class KnownValue extends SingleValue {
     }
 }
 
-export const enum ObjectClass {
+export const enum ObjectType {
     Function, Object
 }
 
 export type ValueMap = {[idx:string]:Value};
 
 export class ObjectValue extends SingleValue {
-    constructor(public objectClass:ObjectClass, private reference:Object, private properties:ValueMap = Object.create(null)) {
+    constructor(public objectType:ObjectType, private objectClass:ObjectClass, private reference:Object, private properties:ValueMap = Object.create(null)) {
         super();
     }
 
-    isPropertyClean(property:string):boolean {
+    isPropertyClean(property:any):boolean {
         let val = this.properties[property];
         if (!val) {
             return false;
@@ -93,7 +94,7 @@ export class ObjectValue extends SingleValue {
         if (val instanceof IterableValue) {
             let allClean = true;
             val.each(v => {
-                if (v instanceof ObjectValue && v.objectClass === ObjectClass.Function) {
+                if (v instanceof ObjectValue && v.objectType === ObjectType.Function) {
                     allClean = false;
                 }
             });
@@ -103,25 +104,25 @@ export class ObjectValue extends SingleValue {
         }
     }
 
-    resolve(property:string):Value {
+    resolve(property:any):Value {
         return this.properties[property] || unknown;
     }
 
-    set(property:any, value:Value):ObjectValue {
-        const map:ValueMap = Object.create(null);
+    set(property:any, value:SingleValue|UnknownValue):ObjectValue {
+        let map:ValueMap = Object.create(null);
         for (let i in this.properties) {
             map[i] = this.properties[i];
         }
-        map[property] = value;
-        return new ObjectValue(this.objectClass, this.reference, map);
+        map = this.objectClass.onSet(map, property + '', value);
+        return new ObjectValue(this.objectType, this.objectClass, this.reference, map);
     }
 
     noKnownProperties():ObjectValue {
-        return new ObjectValue(this.objectClass, this.reference, Object.create(null));
+        return new ObjectValue(this.objectType, this.objectClass, this.reference, Object.create(null));
     }
 
     protected equalsInner(other:ObjectValue):boolean {
-        return this.objectClass === other.objectClass && this.equalsAllProps(other) && other.equalsAllProps(this);
+        return this.objectType === other.objectType && this.equalsAllProps(other) && other.equalsAllProps(this);
     }
 
     compareTo(other:SingleValue, strict:boolean):ComparisonResult {

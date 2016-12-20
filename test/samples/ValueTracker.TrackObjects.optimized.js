@@ -103,6 +103,51 @@
 })();
 
 (function() {
+    var arr = [1, 2];
+    arr[0] = 1.1;
+    console.log(2);
+    arr[2] = 4;
+    console.log(3);
+    console.log(1.1);
+    console.log(2);
+    arr[u()] = 1;
+    console.log(arr.length);
+})();
+
+(function() {
+    var arr = [1, 2];
+    arr.x = 'x';
+    arr.length = 1;
+    console.log(1);
+    if (u()) {
+        arr.length = 3;
+    }
+    console.log(arr.length);
+    arr[3] = 4;
+    console.log(4);
+    console.log("x");
+    modify(arr);
+    arr[0] = 1;
+    console.log(arr.length);
+})();
+
+(function() {
+    var arr = [];
+    arr.length = u();
+    console.log(arr.length);
+    arr.length = 0;
+    arr.length = {};
+    console.log(typeof arr.length);
+    console.log(arr.length);
+    arr.length = '04';
+    console.log(4);
+    arr.length = 0.3;
+    console.log(4);
+    arr.length = 'x';
+    console.log(4);
+})();
+
+(function() {
     var i = 1;
     if (u) {
         i = 2;

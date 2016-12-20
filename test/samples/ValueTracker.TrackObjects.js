@@ -109,6 +109,51 @@
 })();
 
 (function() {
+    var arr = [1, 2];
+    arr[0] = 1.1;
+    console.log(arr.length);
+    arr[2] = 4;
+    console.log(arr.length);
+    console.log(arr[0]);
+    console.log(arr[1]);
+    arr[u()] = 1;
+    console.log(arr.length);
+})();
+
+(function() {
+    var arr = [1, 2];
+    arr.x = 'x';
+    arr.length = 1;
+    console.log(arr[0]);
+    if (u()) {
+        arr.length = 3;
+    }
+    console.log(arr.length);
+    arr[3] = 4;
+    console.log(arr.length);
+    console.log(arr.x);
+    modify(arr);
+    arr[0] = 1;
+    console.log(arr.length);
+})();
+
+(function() {
+    var arr = [];
+    arr.length = u();
+    console.log(arr.length);
+    arr.length = 0;
+    arr.length = {};
+    console.log(typeof arr.length);
+    console.log(arr.length);
+    arr.length = '04';
+    console.log(arr.length);
+    arr.length = 0.3;
+    console.log(arr.length);
+    arr.length = 'x';
+    console.log(arr.length);
+})();
+
+(function() {
     var i = 1;
     if (u) {
         i = 2;

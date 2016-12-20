@@ -18,7 +18,7 @@ import {
     isCase,
     isLHS
 } from "../../Util";
-import {unknown, KnownValue, Value, ObjectValue, IterableValue} from "../../Value";
+import {unknown, KnownValue, Value, ObjectValue, IterableValue, UnknownValue} from "../../Value";
 import AstNode = require("../../AstNode");
 import Variable = require("./Variable");
 export = function (feature:Feature<Variable>) {
@@ -159,18 +159,19 @@ function handleAssignment(node:AstNode<Expression, Variable>, source:Expression,
     } else {
         if (operator === '=') {
             if (propertyValues) {
-                newValue = rightValues.map(rval => {
-                    return topValue.value.product(propertyValues, (left, prop) => {
-                        if (!(left instanceof ObjectValue)) {
-                            return left;
-                        }
+                newValue = topValue.value.product(propertyValues, (left, prop) => {
+                    if (!(left instanceof ObjectValue)) {
+                        return left;
+                    }
 
-                        if (prop instanceof KnownValue) { //todo dup
-                            return left.set(prop.value, rval);
+                    if (prop instanceof KnownValue) { //todo dup
+                        if (rightValues instanceof UnknownValue) {
+                            return left.set(prop.value, rightValues);
                         }
-                        return unknown;
-                    });
-                })
+                        return rightValues.map(rval => left.set(prop.value, rval));
+                    }
+                    return left.noKnownProperties();
+                });
             } else {
                 newValue = rightValues;
             }
