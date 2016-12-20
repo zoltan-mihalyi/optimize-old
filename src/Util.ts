@@ -1,5 +1,5 @@
-import {KnownValue, Value, ObjectValue, ObjectType, ValueMap, unknown} from "./Value";
-import {ObjectObjectClass, FunctionObjectClass, ArrayObjectClass} from "./ObjectClasses";
+import {Value, KnownValue, ValueMap, ObjectValue, unknown} from "./Value";
+import {OBJECT, FUNCTION, ARRAY} from "./ObjectClasses";
 import AstNode = require("./AstNode");
 import Variable = require("./features/ValueTracker/Variable");
 export function isLiteral(e:Expression):e is Literal {
@@ -204,10 +204,10 @@ export function getValueInformation(e:Expression):Value {
         }
         map['length'] = new KnownValue(e.elements.length);
 
-        return isClean(e) ? new ObjectValue(ObjectType.Object, new ArrayObjectClass(), {}, map) : null;
+        return isClean(e) ? new ObjectValue(ARRAY, {}, map) : null;
     }
     if (isFunctionLike(e)) {
-        return new ObjectValue(ObjectType.Function, new FunctionObjectClass(), {});
+        return new ObjectValue(FUNCTION, {});
     }
     if (isObjectExpression(e)) {
         let map:ValueMap = Object.create(null);
@@ -220,7 +220,7 @@ export function getValueInformation(e:Expression):Value {
                 break;
             }
         }
-        return new ObjectValue(ObjectType.Object, new ObjectObjectClass(), {}, map);
+        return new ObjectValue(OBJECT, {}, map);
     }
     return null;
 }

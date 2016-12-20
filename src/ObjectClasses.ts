@@ -1,19 +1,24 @@
 import {ValueMap, Value, SingleValue, UnknownValue, KnownValue} from "./Value";
-export abstract class ObjectClass {
-    abstract onSet(map:ValueMap, property:string, value:Value):ValueMap;
+
+export interface ObjectClass {
+    onSet(map:ValueMap, property:string, value:Value):ValueMap;
 }
 
-export class ObjectObjectClass extends ObjectClass {
+class ObjectObjectClass implements ObjectClass {
     onSet(map:ValueMap, property:string, value:SingleValue|UnknownValue):ValueMap {
         map[property] = value;
         return map;
     }
 }
 
-export class FunctionObjectClass extends ObjectObjectClass {
+export const OBJECT:ObjectClass = new ObjectObjectClass();
+
+class FunctionObjectClass extends ObjectObjectClass {
 }
 
-export class ArrayObjectClass extends ObjectObjectClass {
+export const FUNCTION = new FunctionObjectClass();
+
+class ArrayObjectClass extends ObjectObjectClass {
     onSet(map:ValueMap, property:string, value:SingleValue|UnknownValue):ValueMap {
         if (property === 'length') {
             if (value instanceof KnownValue) {
@@ -62,3 +67,5 @@ function toNumber(value:string):number {
     }
     return null;
 }
+
+export const ARRAY = new ArrayObjectClass();

@@ -1,4 +1,4 @@
-import {ObjectClass} from "./ObjectClasses";
+import {ObjectClass, FUNCTION} from "./ObjectClasses";
 export abstract class Value {
     abstract map(mapper:(value:SingleValue) => Value):Value;
 
@@ -75,15 +75,15 @@ export class KnownValue extends SingleValue {
     }
 }
 
-export const enum ObjectType {
-    Function, Object
-}
-
 export type ValueMap = {[idx:string]:Value};
 
 export class ObjectValue extends SingleValue {
-    constructor(public objectType:ObjectType, private objectClass:ObjectClass, private reference:Object, private properties:ValueMap = Object.create(null)) {
+    constructor(private objectClass:ObjectClass, private reference:Object, private properties:ValueMap = Object.create(null)) {
         super();
+    }
+
+    isFunction():boolean {
+        return this.objectClass === FUNCTION;
     }
 
     isPropertyClean(property:any):boolean {
@@ -94,7 +94,7 @@ export class ObjectValue extends SingleValue {
         if (val instanceof IterableValue) {
             let allClean = true;
             val.each(v => {
-                if (v instanceof ObjectValue && v.objectType === ObjectType.Function) {
+                if (v instanceof ObjectValue && v.objectClass === FUNCTION) {
                     allClean = false;
                 }
             });
@@ -114,15 +114,15 @@ export class ObjectValue extends SingleValue {
             map[i] = this.properties[i];
         }
         map = this.objectClass.onSet(map, property + '', value);
-        return new ObjectValue(this.objectType, this.objectClass, this.reference, map);
+        return new ObjectValue(this.objectClass, this.reference, map);
     }
 
     noKnownProperties():ObjectValue {
-        return new ObjectValue(this.objectType, this.objectClass, this.reference, Object.create(null));
+        return new ObjectValue(this.objectClass, this.reference, Object.create(null));
     }
 
     protected equalsInner(other:ObjectValue):boolean {
-        return this.objectType === other.objectType && this.equalsAllProps(other) && other.equalsAllProps(this);
+        return this.objectClass == other.objectClass && this.equalsAllProps(other) && other.equalsAllProps(this);
     }
 
     compareTo(other:SingleValue, strict:boolean):ComparisonResult {

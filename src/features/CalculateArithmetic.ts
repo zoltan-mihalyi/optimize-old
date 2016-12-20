@@ -1,6 +1,6 @@
 import {Feature} from "../Feature";
 import {getValueInformation} from "../Util";
-import {KnownValue, unknown, ObjectValue, ComparisonResult, ObjectType} from "../Value";
+import {KnownValue, unknown, ObjectValue, ComparisonResult} from "../Value";
 import AstNode = require("../AstNode");
 
 const feature:Feature<any> = new Feature<any>();
@@ -56,7 +56,7 @@ feature.addPhase().after.onUnaryExpression((node:AstNode<UnaryExpression, any>) 
                 } else if (expression.operator === 'void') {
                     return new KnownValue(void 0);
                 } else if (expression.operator === 'typeof') {
-                    return new KnownValue((value as ObjectValue).objectType === ObjectType.Function ? 'function' : 'object');
+                    return new KnownValue((value as ObjectValue).isFunction() ? 'function' : 'object');
                 }
                 return unknown;
             }
