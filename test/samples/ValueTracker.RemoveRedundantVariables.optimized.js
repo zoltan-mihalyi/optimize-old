@@ -108,9 +108,7 @@
 })();
 
 (function() {
-    {
-        return u() + 1;
-    }
+    return u() + 1;
 })();
 
 (function() {

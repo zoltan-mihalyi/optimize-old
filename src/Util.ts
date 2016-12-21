@@ -297,13 +297,17 @@ function getLiteralLikeValue(e:Expression):boolean {
     }
 }
 
-export function isBlockScoped(node:AstNode<VariableDeclarator, any>) {
-    return (node.parent.expression as VariableDeclaration).kind !== 'var';
+export function isBlockScoped(e:VariableDeclaration):boolean {
+    return e.kind !== 'var';
+}
+
+export function isBlockScopedDeclarator(node:AstNode<VariableDeclarator, any>) {
+    return isBlockScoped(node.parent.expression as VariableDeclaration);
 }
 
 export function isDeclared(node:AstNode<VariableDeclarator, Variable>):boolean {
     const id = node.expression.id;
-    return isBlockScoped(node) ? node.scope.hasInCurrentBlock(id) : node.scope.hasInCurrentFunction(id);
+    return isBlockScopedDeclarator(node) ? node.scope.hasInCurrentBlock(id) : node.scope.hasInCurrentFunction(id);
 }
 
 export function getPropertyValue(expression:MemberExpression) {

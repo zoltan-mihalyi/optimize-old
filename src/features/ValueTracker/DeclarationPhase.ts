@@ -1,6 +1,6 @@
 import {Feature} from "../../Feature";
 import {ObjectValue, KnownValue, unknown} from "../../Value";
-import {identifier, isBlockScoped, isFunctionLike, isDeclared} from "../../Util";
+import {identifier, isBlockScopedDeclarator, isFunctionLike, isDeclared} from "../../Util";
 import {ObjectClass, FUNCTION, OBJECT} from "../../ObjectClasses";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
@@ -18,7 +18,7 @@ export = function (feature:Feature<Variable>):void {
         if (isDeclared(node)) {
             return;
         }
-        const blockScoped = isBlockScoped(node);
+        const blockScoped = isBlockScopedDeclarator(node);
         const value = (blockScoped || node.scope.isGlobal()) ? unknown : new KnownValue(void 0);
         node.scope.save(node.expression.id, new Variable(node, blockScoped, value, false), blockScoped);
     });

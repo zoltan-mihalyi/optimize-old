@@ -7,6 +7,7 @@ import reduceSwitchCase = require('./features/ReduceSwitchCase');
 import reduceLogical = require('./features/ReduceLogical');
 import valueTracker = require('./features/ValueTracker/ValueTracker');
 import unrollForIn = require('./features/UnrollForIn');
+import removeBlock = require('./features/RemoveBlock');
 import {Feature, Phase} from "./Feature";
 import Scope = require("./Scope");
 import AstNode = require("./AstNode");
@@ -19,7 +20,8 @@ const features:Feature<any>[] = [
     reduceSwitchCase,
     reduceLogical,
     valueTracker,
-    unrollForIn
+    unrollForIn,
+    removeBlock
 ];
 
 class Walker {

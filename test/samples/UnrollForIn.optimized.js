@@ -3,28 +3,14 @@
         x: 1
     }).y = 2;;
 
-    {
-        var i = "x";
-        console.log("x", 1);
-    }
-
-    {
-        var i = "y";
-        console.log("y", 2);
-    }
-
-    console.log(i);
+    console.log("x", 1);
+    console.log("y", 2);
+    console.log("y");
 })();
 
 (function() {
-    {
-        console.log("x", 1);
-    }
-
-    {
-        console.log("y", 2);
-    }
-
+    console.log("x", 1);
+    console.log("y", 2);
     console.log(i);
 })();
 
@@ -38,11 +24,6 @@
 })();
 
 (function() {
-    {
-        console.log("0", 1);
-    }
-
-    {
-        console.log("1", 2);
-    }
+    console.log("0", 1);
+    console.log("1", 2);
 })();
