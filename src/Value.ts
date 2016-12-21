@@ -75,10 +75,15 @@ export class KnownValue extends SingleValue {
     }
 }
 
-export type ValueMap = {[idx:string]:Value};
+export interface PropertyDescriptor {
+    iterable:boolean;
+    value:Value;
+}
+
+export type PropertyMap = {[idx:string]:PropertyDescriptor};
 
 export class ObjectValue extends SingleValue {
-    constructor(private objectClass:ObjectClass, private reference:Object, private properties:ValueMap = Object.create(null)) {
+    constructor(private objectClass:ObjectClass, private reference:Object, private properties:PropertyMap = Object.create(null)) {
         super();
     }
 
@@ -87,10 +92,11 @@ export class ObjectValue extends SingleValue {
     }
 
     isPropertyClean(property:any):boolean {
-        let val = this.properties[property];
-        if (!val) {
+        const propertyDescriptor = this.properties[property];
+        if (!propertyDescriptor) {
             return false;
         }
+        const val = propertyDescriptor.value;
         if (val instanceof IterableValue) {
             let allClean = true;
             val.each(v => {
@@ -105,15 +111,23 @@ export class ObjectValue extends SingleValue {
     }
 
     resolve(property:any):Value {
-        return this.properties[property] || unknown;
+        const propertyDescriptor = this.properties[property];
+        if (!propertyDescriptor) {
+            return unknown;
+        }
+        return propertyDescriptor.value;
     }
 
     set(property:any, value:SingleValue|UnknownValue):ObjectValue {
-        let map:ValueMap = Object.create(null);
+        let map:PropertyMap = Object.create(null);
         for (let i in this.properties) {
-            map[i] = this.properties[i];
+            let descriptor = this.properties[i];
+            map[i] = {
+                value: descriptor.value,
+                iterable: descriptor.iterable
+            };
         }
-        map = this.objectClass.onSet(map, property + '', value);
+        map = this.objectClass.onSet(map, property + '', value, true);
         return new ObjectValue(this.objectClass, this.reference, map);
     }
 
@@ -138,7 +152,7 @@ export class ObjectValue extends SingleValue {
             if (!other.properties[i]) {
                 return false;
             }
-            if (!other.properties[i].equals(this.properties[i])) {
+            if (!other.properties[i].value.equals(this.properties[i].value)) {
                 return false;
             }
         }

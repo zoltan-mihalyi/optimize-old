@@ -1,12 +1,15 @@
-import {ValueMap, Value, SingleValue, UnknownValue, KnownValue} from "./Value";
+import {PropertyMap, Value, SingleValue, UnknownValue, KnownValue} from "./Value";
 
 export interface ObjectClass {
-    onSet(map:ValueMap, property:string, value:Value):ValueMap;
+    onSet(map:PropertyMap, property:string, value:Value, iterable:boolean):PropertyMap;
 }
 
 class ObjectObjectClass implements ObjectClass {
-    onSet(map:ValueMap, property:string, value:SingleValue|UnknownValue):ValueMap {
-        map[property] = value;
+    onSet(map:PropertyMap, property:string, value:SingleValue|UnknownValue, iterable:boolean):PropertyMap {
+        map[property] = {
+            iterable: iterable,
+            value: value
+        };
         return map;
     }
 }
@@ -19,13 +22,14 @@ class FunctionObjectClass extends ObjectObjectClass {
 export const FUNCTION = new FunctionObjectClass();
 
 class ArrayObjectClass extends ObjectObjectClass {
-    onSet(map:ValueMap, property:string, value:SingleValue|UnknownValue):ValueMap {
+    onSet(map:PropertyMap, property:string, value:SingleValue|UnknownValue, iterable:boolean):PropertyMap {
         if (property === 'length') {
             if (value instanceof KnownValue) {
                 const length = +value.value;
                 if (length >= 0 && length === length >> 0) {
-                    removeArrayItems(map, i => i >= length)
+                    removeArrayItems(map, i => i >= length);
                     value = new KnownValue(length);
+                    iterable = false;
                 } else { //assignment throws an error
                     return map;
                 }
@@ -37,19 +41,22 @@ class ArrayObjectClass extends ObjectObjectClass {
         } else {
             const propertyAsIndex = toNumber(property);
             if (propertyAsIndex !== null) {
-                let length = map['length'];
-                if (length instanceof KnownValue) {
-                    let oldLength = length.value;
-                    let newLength = oldLength <= propertyAsIndex ? propertyAsIndex + 1 : oldLength;
-                    map['length'] = new KnownValue(newLength);
+                let lengthDescriptor = map['length'];
+                if (lengthDescriptor) {
+                    let lengthValue = lengthDescriptor.value;
+                    if (lengthValue instanceof KnownValue) {
+                        let oldLength = lengthValue.value;
+                        let newLength = oldLength <= propertyAsIndex ? propertyAsIndex + 1 : oldLength;
+                        lengthDescriptor.value = new KnownValue(newLength);
+                    }
                 }
             }
         }
-        return super.onSet(map, property, value);
+        return super.onSet(map, property, value, iterable);
     }
 }
 
-function removeArrayItems(map:ValueMap, filter?:(i:number) => boolean) {
+function removeArrayItems(map:PropertyMap, filter?:(i:number) => boolean) {
     for (let i in map) {
         const index = toNumber(i);
         if (index !== null) {

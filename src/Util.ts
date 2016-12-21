@@ -1,4 +1,4 @@
-import {Value, KnownValue, ValueMap, ObjectValue, unknown} from "./Value";
+import {Value, KnownValue, PropertyMap, ObjectValue, unknown} from "./Value";
 import {OBJECT, FUNCTION, ARRAY} from "./ObjectClasses";
 import AstNode = require("./AstNode");
 import Variable = require("./features/ValueTracker/Variable");
@@ -197,12 +197,18 @@ export function getValueInformation(e:Expression):Value {
         return new KnownValue(getLiteralLikeValue(e));
     }
     if (isArrayExpression(e)) {
-        let map:ValueMap = Object.create(null);
+        let map:PropertyMap = Object.create(null);
         for (let i = 0; i < e.elements.length; i++) {
             const element = e.elements[i];
-            map[i] = safeValue(element);
+            map[i] = {
+                value: safeValue(element),
+                iterable: true
+            };
         }
-        map['length'] = new KnownValue(e.elements.length);
+        map['length'] = {
+            value: new KnownValue(e.elements.length),
+            iterable: false
+        };
 
         return isClean(e) ? new ObjectValue(ARRAY, {}, map) : null;
     }
@@ -210,11 +216,14 @@ export function getValueInformation(e:Expression):Value {
         return new ObjectValue(FUNCTION, {});
     }
     if (isObjectExpression(e)) {
-        let map:ValueMap = Object.create(null);
+        let map:PropertyMap = Object.create(null);
         for (let i = 0; i < e.properties.length; i++) {
             const property = e.properties[i];
             if (isStaticProperty(property)) {
-                map[property.key.name] = safeValue(property.value);
+                map[property.key.name] = {
+                    value: safeValue(property.value),
+                    iterable: true
+                };
             } else {
                 map = void 0;
                 break;
