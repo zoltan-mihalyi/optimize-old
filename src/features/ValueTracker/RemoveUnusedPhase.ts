@@ -1,15 +1,11 @@
 import {Feature} from "../../Feature";
 import {
     isIdentifier,
-    binaryExpression,
-    literal,
-    declaration,
-    expressionStatement,
-    declarator,
     isLiteral
-} from "../../Util";
+} from "../../util/TypeCheckers";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
+import {binaryExpression, literal, declarator, declaration, expressionStatement} from "../../util/Builders";
 export = function (feature:Feature<Variable>) {
 
     const removeUnusedPhase = feature.addPhase();

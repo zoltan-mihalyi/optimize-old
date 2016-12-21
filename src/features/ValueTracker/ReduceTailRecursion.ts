@@ -2,19 +2,13 @@ import {Feature} from "../../Feature";
 import {
     isIdentifier,
     isReturnStatement,
-    returnStatement,
-    literal,
-    whileStatement,
-    labeled,
-    block,
-    continueStatement,
-    declarator,
-    declaration,
-    identifier,
-    assignment
-} from "../../Util";
+} from "../../util/TypeCheckers";
 import AstNode = require("../../AstNode");
 import Variable = require("./Variable");
+import {
+    continueStatement, labeled, whileStatement, literal, block, returnStatement,
+    declaration, declarator, assignment, identifier
+} from "../../util/Builders";
 
 const USED_IDS_STORE = 'usedIds';
 

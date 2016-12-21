@@ -1,5 +1,6 @@
 import {Feature} from "../Feature";
-import {safeValue, isBreak, contains} from "../Util";
+import {isBreak} from "../util/TypeCheckers";
+import {safeValue, contains} from "../util/Others";
 import {SingleValue, ComparisonResult} from "../Value";
 import AstNode = require("../AstNode");
 

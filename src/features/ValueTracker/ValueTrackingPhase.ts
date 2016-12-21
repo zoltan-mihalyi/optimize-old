@@ -7,19 +7,15 @@ import {
     isUpdateExpression,
     isExpressionStatement,
     isIdentifier,
-    literal,
-    isDeclared,
     isTryStatement,
     isMemberExpression,
     isStaticMemberExpression,
-    safeValue,
-    isRealUsage,
-    getPropertyValue,
     isCase,
-    isLHS,
     isBlockStatement
-} from "../../Util";
+} from "../../util/TypeCheckers";
+import {isDeclared, safeValue, isRealUsage, getPropertyValue, isLHS} from "../../util/Others";
 import {unknown, KnownValue, Value, ObjectValue, IterableValue, UnknownValue} from "../../Value";
+import {literal} from "../../util/Builders";
 import AstNode = require("../../AstNode");
 import Variable = require("./Variable");
 export = function (feature:Feature<Variable>) {

@@ -1,17 +1,9 @@
 ///<reference path="../interfaces.ts"/>
 import {Feature} from "../Feature";
-import {
-    safeValue,
-    assignment,
-    literal,
-    declaration,
-    isVariableDeclaration,
-    declarator,
-    isBlockStatement,
-    copy,
-    block
-} from "../Util";
+import {safeValue, copy} from "../util/Others";
+import {isVariableDeclaration, isBlockStatement} from "../util/TypeCheckers";
 import {ObjectValue} from "../Value";
+import {declaration, declarator, literal, assignment, block} from "../util/Builders";
 import AstNode = require("../AstNode");
 
 const feature:Feature<any> = new Feature<any>();

@@ -1,6 +1,7 @@
 ///<reference path="../interfaces.ts"/>
 import {Feature} from "../Feature";
-import {isBlockStatementLike, getValueInformation} from "../Util";
+import {isBlockStatementLike} from "../util/TypeCheckers";
+import {getValueInformation} from "../util/Others";
 import {KnownValue} from "../Value";
 import AstNode = require("../AstNode");
 

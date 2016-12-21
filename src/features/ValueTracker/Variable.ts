@@ -1,7 +1,7 @@
 import LocalValue = require("./LocalValue");
 import AstNode = require("../../AstNode");
 import {Value} from "../../Value";
-import {isFunctionLike, isLoop} from "../../Util";
+import {isFunctionLike, isLoop} from "../../util/TypeCheckers";
 class Variable {
     private writesFromFunctionOnly:boolean = true;
     private accessFromFunctionOnly:boolean = true;

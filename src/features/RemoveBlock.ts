@@ -1,6 +1,6 @@
 ///<reference path="../interfaces.ts"/>
 import {Feature} from "../Feature";
-import {isVariableDeclaration, isBlockScoped, isBlockStatementLike} from "../Util";
+import {isVariableDeclaration, isBlockScoped, isBlockStatementLike} from "../util/TypeCheckers";
 import AstNode = require("../AstNode");
 
 const feature:Feature<any> = new Feature<any>();

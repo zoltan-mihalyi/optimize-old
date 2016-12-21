@@ -1,9 +1,11 @@
 import {Feature} from "../../Feature";
 import {ObjectValue, KnownValue, unknown} from "../../Value";
-import {identifier, isBlockScopedDeclarator, isFunctionLike, isDeclared} from "../../Util";
+import {isFunctionLike} from "../../util/TypeCheckers";
+import {isBlockScopedDeclarator, isDeclared} from "../../util/Others";
 import {ObjectClass, FUNCTION, OBJECT} from "../../ObjectClasses";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
+import {identifier} from "../../util/Builders";
 
 export = function (feature:Feature<Variable>):void {
     const declarationPhase = feature.addPhase();

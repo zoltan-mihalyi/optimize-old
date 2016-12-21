@@ -1,7 +1,8 @@
 import Scope = require("./Scope");
-import {isBlockStatementLike, literalLike, isUnaryExpression, isLiteral} from "./Util";
 import {Value, KnownValue, UnknownValue} from "./Value";
 import recast = require('recast');
+import {literalLike} from "./util/Builders";
+import {isBlockStatementLike, isUnaryExpression, isLiteral} from "./util/TypeCheckers";
 
 class AstNode<T extends Expression, S> {
     scope:Scope<S>;

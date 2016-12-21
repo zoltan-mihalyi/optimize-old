@@ -1,5 +1,4 @@
-import {isFunctionLike} from "./Util";
-
+import {isFunctionLike} from "./util/TypeCheckers";
 type Store<T> = {[idx:string]:T};
 
 class Scope<T> {

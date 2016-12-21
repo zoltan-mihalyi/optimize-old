@@ -1,5 +1,6 @@
 import {Feature} from "../Feature";
-import {isDirective, isBinaryExpressionLike, isClean} from "../Util";
+import {isDirective, isBinaryExpressionLike} from "../util/TypeCheckers";
+import {isClean} from "../util/Others";
 import AstNode = require("../AstNode");
 
 const feature = new Feature();

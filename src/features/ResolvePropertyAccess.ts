@@ -1,5 +1,5 @@
 import {Feature} from "../Feature";
-import {getValueInformation, isLHS, getPropertyValue} from "../Util";
+import {getValueInformation, isLHS, getPropertyValue} from "../util/Others";
 import {ObjectValue, unknown, KnownValue} from "../Value";
 import AstNode = require("../AstNode");
 

@@ -1,5 +1,6 @@
 import {Feature} from "../../Feature";
-import {isIdentifier, isVariableDeclarator, isForInStatement, isForOfStatement, isRealUsage} from "../../Util";
+import {isIdentifier, isVariableDeclarator, isForInStatement, isForOfStatement} from "../../util/TypeCheckers";
+import {isRealUsage} from "../../util/Others";
 import Variable = require("./Variable");
 import AstNode = require("../../AstNode");
 
