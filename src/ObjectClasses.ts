@@ -1,11 +1,15 @@
 import {PropertyMap, Value, SingleValue, UnknownValue, KnownValue} from "./Value";
 
+export interface PropertyInfo {
+    knowAllProperties:boolean;
+}
+
 export interface ObjectClass {
-    onSet(map:PropertyMap, property:string, value:Value, iterable:boolean):PropertyMap;
+    onSet(map:PropertyMap, info:PropertyInfo, property:string, value:Value, iterable:boolean):PropertyMap;
 }
 
 class ObjectObjectClass implements ObjectClass {
-    onSet(map:PropertyMap, property:string, value:SingleValue|UnknownValue, iterable:boolean):PropertyMap {
+    onSet(map:PropertyMap, info:PropertyInfo, property:string, value:SingleValue|UnknownValue, iterable:boolean):PropertyMap {
         map[property] = {
             iterable: iterable,
             value: value
@@ -22,7 +26,7 @@ class FunctionObjectClass extends ObjectObjectClass {
 export const FUNCTION = new FunctionObjectClass();
 
 class ArrayObjectClass extends ObjectObjectClass {
-    onSet(map:PropertyMap, property:string, value:SingleValue|UnknownValue, iterable:boolean):PropertyMap {
+    onSet(map:PropertyMap, info:PropertyInfo, property:string, value:SingleValue|UnknownValue, iterable:boolean):PropertyMap {
         if (property === 'length') {
             if (value instanceof KnownValue) {
                 const length = +value.value;
@@ -36,6 +40,7 @@ class ArrayObjectClass extends ObjectObjectClass {
             } else { //object or unknown
                 removeArrayItems(map);
                 delete map['length'];
+                info.knowAllProperties = false;
                 return map;
             }
         } else {
@@ -52,7 +57,7 @@ class ArrayObjectClass extends ObjectObjectClass {
                 }
             }
         }
-        return super.onSet(map, property, value, iterable);
+        return super.onSet(map, info, property, value, iterable);
     }
 }
 

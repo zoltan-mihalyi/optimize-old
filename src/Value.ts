@@ -1,4 +1,4 @@
-import {ObjectClass, FUNCTION} from "./ObjectClasses";
+import {ObjectClass, FUNCTION, PropertyInfo} from "./ObjectClasses";
 export abstract class Value {
     abstract map(mapper:(value:SingleValue) => Value):Value;
 
@@ -83,7 +83,7 @@ export interface PropertyDescriptor {
 export type PropertyMap = {[idx:string]:PropertyDescriptor};
 
 export class ObjectValue extends SingleValue {
-    constructor(private objectClass:ObjectClass, private reference:Object, private properties:PropertyMap = Object.create(null)) {
+    constructor(private objectClass:ObjectClass, private reference:Object, private knowAllProperties:boolean, private properties:PropertyMap = Object.create(null)) {
         super();
     }
 
@@ -127,12 +127,13 @@ export class ObjectValue extends SingleValue {
                 iterable: descriptor.iterable
             };
         }
-        map = this.objectClass.onSet(map, property + '', value, true);
-        return new ObjectValue(this.objectClass, this.reference, map);
+        const info:PropertyInfo = {knowAllProperties: this.knowAllProperties};
+        map = this.objectClass.onSet(map, info, property + '', value, true);
+        return new ObjectValue(this.objectClass, this.reference, info.knowAllProperties, map);
     }
 
     noKnownProperties():ObjectValue {
-        return new ObjectValue(this.objectClass, this.reference, Object.create(null));
+        return new ObjectValue(this.objectClass, this.reference, false, Object.create(null));
     }
 
     protected equalsInner(other:ObjectValue):boolean {
@@ -144,6 +145,19 @@ export class ObjectValue extends SingleValue {
             return comparisonResultFromBoolean(this.reference === other.reference);
         } else {
             return ComparisonResult.UNKNOWN;
+        }
+    }
+
+    canIterate():boolean {
+        return this.knowAllProperties;
+    }
+
+    iterate(callback:(i:string, value:Value) => void):void {
+        for (let i in this.properties) {
+            let propertyDescriptor = this.properties[i];
+            if(propertyDescriptor.iterable) {
+                callback(i, propertyDescriptor.value);
+            }
         }
     }
 

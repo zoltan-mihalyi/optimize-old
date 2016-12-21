@@ -210,10 +210,10 @@ export function getValueInformation(e:Expression):Value {
             iterable: false
         };
 
-        return isClean(e) ? new ObjectValue(ARRAY, {}, map) : null;
+        return isClean(e) ? new ObjectValue(ARRAY, {}, true, map) : null;
     }
     if (isFunctionLike(e)) {
-        return new ObjectValue(FUNCTION, {});
+        return new ObjectValue(FUNCTION, {}, true);
     }
     if (isObjectExpression(e)) {
         let map:PropertyMap = Object.create(null);
@@ -229,7 +229,7 @@ export function getValueInformation(e:Expression):Value {
                 break;
             }
         }
-        return new ObjectValue(OBJECT, {}, map);
+        return new ObjectValue(OBJECT, {}, true, map);
     }
     return null;
 }
@@ -333,7 +333,7 @@ export function unaryExpression(operator:string, prefix:boolean, argument:Expres
     };
 }
 
-export function literal(value:number):Literal {
+export function literal(value:number|string|boolean):Literal {
     return {
         type: 'Literal',
         value: value,
@@ -533,4 +533,25 @@ export function property(key:Expression, value:Expression, method:boolean, kind:
         shorthand: shorthand,
         computed: computed
     };
+}
+
+export function copy(o) {
+    if (typeof o !== "object" || o === null) {
+        return o;
+    }
+
+    if (Array.isArray(o)) {
+        const result = [];
+        for (let i = 0; i < o.length; i++) {
+            result.push(copy(o[i]));
+        }
+        return result;
+    }
+    const result = {};
+    for (let i in o) {
+        if (Object.prototype.hasOwnProperty.call(o, i) && i !== 'loc' && i !== 'calculatedValue') {
+            result[i] = copy(o[i]);
+        }
+    }
+    return result;
 }

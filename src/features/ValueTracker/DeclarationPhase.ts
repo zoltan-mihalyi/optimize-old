@@ -24,7 +24,7 @@ export = function (feature:Feature<Variable>):void {
     });
 
     declarationPhase.before.onFunctionDeclaration((node:AstNode<FunctionDeclaration, Variable>) => {
-        const objectValue = new ObjectValue(FUNCTION, {});
+        const objectValue = new ObjectValue(FUNCTION, {}, true);
         const variable = new Variable(node, false, objectValue, true, node.expression);
         node.scope.save(node.expression.id, variable, false);
     });
@@ -44,5 +44,5 @@ export = function (feature:Feature<Variable>):void {
 };
 
 function saveApi(node:AstNode<any,Variable>, name:string, objectClass:ObjectClass) {
-    node.scope.save(identifier(name), new Variable(node, false, new ObjectValue(objectClass, {}), false), false);
+    node.scope.save(identifier(name), new Variable(node, false, new ObjectValue(objectClass, {}, true), false), false);
 }

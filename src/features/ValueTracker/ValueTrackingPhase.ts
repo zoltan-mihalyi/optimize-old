@@ -16,7 +16,8 @@ import {
     isRealUsage,
     getPropertyValue,
     isCase,
-    isLHS
+    isLHS,
+    isBlockStatement
 } from "../../Util";
 import {unknown, KnownValue, Value, ObjectValue, IterableValue, UnknownValue} from "../../Value";
 import AstNode = require("../../AstNode");
@@ -223,7 +224,7 @@ function getScopes(node:AstNode<Expression, Variable>):Expression[] {
     let current = node;
     while (current.parent) {
         const expression = current.parent.expression;
-        if (isFunctionLike(expression) || isLoop(expression)
+        if (isBlockStatement(current.expression) || isFunctionLike(expression) || isLoop(expression)
             || (isIfStatement(expression) && expression.test !== current.expression)
             || isBinaryExpressionLike(expression) || isTryStatement(expression) || isCase(expression)) {
             result.unshift(current.expression);
