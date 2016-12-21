@@ -116,6 +116,15 @@
 
 })();
 
+(function() {
+    {
+        var i = 1;
+        let j = u();
+        console.log(j, j);
+    }
+    console.log(i);
+})();
+
 var Reflect;
 console.log(Reflect);
 

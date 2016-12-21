@@ -16,6 +16,7 @@ import {
 import {isDeclared, safeValue, isRealUsage, getPropertyValue, isLHS} from "../../util/Others";
 import {unknown, KnownValue, Value, ObjectValue, IterableValue, UnknownValue} from "../../Value";
 import {literal} from "../../util/Builders";
+import {ValueScope, MergeStrategy} from "./LocalValue";
 import AstNode = require("../../AstNode");
 import Variable = require("./Variable");
 export = function (feature:Feature<Variable>) {
@@ -214,20 +215,41 @@ function handleAssignment(node:AstNode<Expression, Variable>, source:Expression,
     variable.updateValue(myTopScope, source, newValue, operator === '=');
 }
 
+function mergeRunAlways(oldValue:Value, newValue:Value):Value {
+    return newValue;
+}
 
-function getScopes(node:AstNode<Expression, Variable>):Expression[] {
-    const result:Expression[] = [];
+function mergeCanRun(oldValue:Value, newValue:Value):Value {
+    return oldValue.or(newValue);
+}
+
+function fromScope(parent:Expression):MergeStrategy {
+    if (isBlockStatement(parent)) {
+        return mergeRunAlways;
+    } else {
+        return mergeCanRun;
+    }
+}
+
+function getScopes(node:AstNode<Expression, Variable>):ValueScope[] {
+    const result:ValueScope[] = [];
     let current = node;
     while (current.parent) {
         const expression = current.parent.expression;
         if (isBlockStatement(current.expression) || isFunctionLike(expression) || isLoop(expression)
             || (isIfStatement(expression) && expression.test !== current.expression)
             || isBinaryExpressionLike(expression) || isTryStatement(expression) || isCase(expression)) {
-            result.unshift(current.expression);
+            result.unshift({
+                expression: current.expression,
+                merge: fromScope(expression)
+            });
         }
 
         current = current.parent;
     }
-    result.unshift(current.expression);
+    result.unshift({
+        expression: current.expression,
+        merge: null
+    });
     return result;
 }

@@ -1,7 +1,7 @@
-import LocalValue = require("./LocalValue");
-import AstNode = require("../../AstNode");
+import {LocalValue, ValueScope} from "./LocalValue";
 import {Value} from "../../Value";
 import {isFunctionLike, isLoop} from "../../util/TypeCheckers";
+import AstNode = require("../../AstNode");
 class Variable {
     private writesFromFunctionOnly:boolean = true;
     private accessFromFunctionOnly:boolean = true;
@@ -12,7 +12,10 @@ class Variable {
 
     constructor(node:AstNode<Expression,any>, blockScoped:boolean, value:Value, private initialized:boolean, public functionDeclaration?:FunctionDeclaration) {
         this.values.push({
-            scope: node.scope.getScope(blockScoped).getExpression(),
+            scope: {
+                merge: null,
+                expression: node.scope.getScope(blockScoped).getExpression()
+            },
             sources: [node.expression],
             value: value
         });
@@ -41,7 +44,7 @@ class Variable {
         this.usages++;
     }
 
-    merge(newScopes:Expression[]):void {
+    merge(newScopes:ValueScope[]):void {
         const lastIndex = this.findFirstDifferent(newScopes);
         let i = this.values.length - 1;
 
@@ -97,12 +100,12 @@ class Variable {
         return this.initialized;
     }
 
-    updateValue(scope:Expression, expression:Expression, value:Value, replace:boolean, skipInit?:boolean) {
+    updateValue(scope:ValueScope, expression:Expression, value:Value, replace:boolean, skipInit?:boolean) {
         if (!skipInit) {
             this.initialized = true;
         }
         let topValue = this.topValue();
-        if (topValue.scope === scope) {
+        if (topValue.scope.expression === scope.expression) {
             if (replace) {
                 topValue.sources = [topValue.sources[0], expression];
             } else {
@@ -119,10 +122,15 @@ class Variable {
 
     }
 
-    private findFirstDifferent(newScopes:Expression[]):number {
+    private findFirstDifferent(newScopes:ValueScope[]):number {
+        const newExpressions = [];
+        for (let i = 0; i < newScopes.length; i++) {
+            newExpressions.push(newScopes[i].expression);
+        }
+
         for (let i = 0; i < this.values.length; i++) {
             const localValue = this.values[i];
-            if (localValue.scope !== null && newScopes.indexOf(localValue.scope) === -1) {
+            if (localValue.scope !== null && newExpressions.indexOf(localValue.scope.expression) === -1) {
                 return i;
             }
         }
@@ -133,7 +141,7 @@ class Variable {
 
 function mergeOne(oldValue:LocalValue, newValue:LocalValue) {
     Array.prototype.push.apply(oldValue.sources, newValue.sources);
-    oldValue.value = oldValue.value.or(newValue.value);
+    oldValue.value = newValue.scope.merge(oldValue.value, newValue.value);
 }
 
 

@@ -112,6 +112,14 @@
     }
 })();
 
+(function() {
+    {
+        let j = u();
+        console.log(j, j);
+    }
+    console.log(1);
+})();
+
 var Reflect;
 console.log(Reflect);
 
