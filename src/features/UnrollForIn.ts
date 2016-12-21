@@ -1,3 +1,4 @@
+///<reference path="../interfaces.ts"/>
 import {Feature} from "../Feature";
 import {
     safeValue,

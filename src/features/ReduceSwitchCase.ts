@@ -1,5 +1,5 @@
 import {Feature} from "../Feature";
-import {safeValue, isBreak} from "../Util";
+import {safeValue, isBreak, contains} from "../Util";
 import {SingleValue, ComparisonResult} from "../Value";
 import AstNode = require("../AstNode");
 
@@ -57,7 +57,7 @@ function replace(cases:SwitchCase[], i:number, node:AstNode<SwitchStatement, any
         statements = previous;
     } else {
         const currentStatements = cases[i].consequent;
-        if (containsBreakArray(currentStatements.slice(0, -1), [])) {
+        if (contains(currentStatements.slice(0, -1), isBreak)) {
             return;
         }
         statements = previous.concat(currentStatements);
@@ -67,46 +67,6 @@ function replace(cases:SwitchCase[], i:number, node:AstNode<SwitchStatement, any
     }
     let items = isBreak(statements[statements.length - 1]) ? statements.slice(0, -1) : statements;
     node.replaceWith(items);
-}
-
-function containsBreak(expression:Expression, visited:any[]) {
-    if (visited.indexOf(expression) !== -1) {
-        return false;
-    }
-    visited.push(expression);
-    if (isBreak(expression)) {
-        return true;
-    }
-    for (let i in expression) {
-        if (i === 'location' || i === 'orig') {
-            continue;
-        }
-        if (expression[i]) {
-            if (expression[i].type) {
-                if (containsBreak(expression[i], visited)) {
-                    return true;
-                }
-            } else if (expression[i].length) {
-                if (containsBreakArray(expression[i], visited)) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-function containsBreakArray(expressions:Expression[], visited:any[]) {
-    if (visited.indexOf(expressions) !== -1) {
-        return false;
-    }
-    visited.push(expressions);
-    for (let i = 0; i < expressions.length; i++) {
-        if (containsBreak(expressions[i], visited)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 export = feature;

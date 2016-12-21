@@ -555,3 +555,51 @@ export function copy(o) {
     }
     return result;
 }
+
+function containsExpression(expression:Expression, predicate:(e:Expression) => boolean, visited:any[]) {
+    if (visited.indexOf(expression) !== -1) {
+        return false;
+    }
+    visited.push(expression);
+    if (predicate(expression)) {
+        return true;
+    }
+    for (let i in expression) {
+        if (i === 'location' || i === 'orig') {
+            continue;
+        }
+        if (expression[i]) {
+            if (expression[i].type) {
+                if (containsExpression(expression[i], predicate, visited)) {
+                    return true;
+                }
+            } else if (expression[i].length) {
+                if (containsArray(expression[i], predicate, visited)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function containsArray(expressions:Expression[], predicate:(e:Expression) => boolean, visited:any[]) {
+    if (visited.indexOf(expressions) !== -1) {
+        return false;
+    }
+    visited.push(expressions);
+    for (let i = 0; i < expressions.length; i++) {
+        if (containsExpression(expressions[i], predicate, visited)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export function contains(e:Expression[]|Expression, predicate:(e:Expression) => boolean):boolean {
+    if (Array.isArray(e)) {
+        return containsArray(e, predicate, []);
+    } else {
+        return containsExpression(e, predicate, []);
+    }
+}
