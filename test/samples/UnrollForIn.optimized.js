@@ -11,6 +11,11 @@
 (function() {
     console.log("x", 1);
     console.log("y", 2);
+})();
+
+(function() {
+    console.log("x", 1);
+    console.log("y", 2);
     console.log(i);
 })();
 

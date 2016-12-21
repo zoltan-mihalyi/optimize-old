@@ -8,6 +8,13 @@
 })();
 
 (function() {
+    var i;
+    let obj = {x: 1, y: 2};
+    for (i in obj)
+        console.log(i, obj[i]);
+})();
+
+(function() {
     let obj = {x: 1, y: 2};
     for (const i in obj) {
         console.log(i, obj[i]);
