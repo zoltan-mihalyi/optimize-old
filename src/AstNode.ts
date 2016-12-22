@@ -1,15 +1,15 @@
 import Scope = require("./Scope");
 import {Value, KnownValue, UnknownValue} from "./Value";
-import recast = require('recast');
 import {literalLike} from "./util/Builders";
 import {isBlockStatementLike, isUnaryExpression, isLiteral} from "./util/TypeCheckers";
+import recast = require('recast');
+import OptimizeContext = require("./optimize");
 
 class AstNode<T extends Expression, S> {
     scope:Scope<S>;
-    changed:boolean = false;
     replaced:boolean = false;
 
-    constructor(public expression:T, public parent:AstNode<any,S>, private parentObject:any,
+    constructor(public context:OptimizeContext, public expression:T, public parent:AstNode<any,S>, private parentObject:any,
                 scopeMap:Map<Expression, Scope<any>>, private property?:string,) {
         if (isBlockStatementLike(expression)) {
             if (scopeMap.has(expression)) {
@@ -32,7 +32,25 @@ class AstNode<T extends Expression, S> {
             throw new Error('Parent does not exist.');
         }
 
-        console.log('replace ' + recast.print(this.expression).code + ' with ' + expressions.map(e => recast.print(e).code));
+        let originalCode = recast.print(this.expression).code;
+        let newCode = expressions.map(e => recast.print(e).code).join('\n');
+
+        let growth = newCode.length - originalCode.length;
+
+        if (growth > this.context.options.maxGrowth) {
+            console.log('Replace growth ' + growth + ' is bigger than maximum: ' + this.context.options.maxGrowth);
+            return;
+        }
+
+        if (this.context.growth + growth > this.context.options.maxTotalGrowth) {
+            console.log('Total growth would be bigger than maximum!');
+            return;
+        }
+
+        this.context.growth += growth;
+
+
+        console.log('replace ' + originalCode + ' with ' + newCode);
 
         if (Array.isArray(this.parentObject)) {
             const index = this.parentObject.indexOf(this.expression);
@@ -64,10 +82,7 @@ class AstNode<T extends Expression, S> {
     }
 
     private markChanged() {
-        this.changed = true;
-        if (this.parent) {
-            this.parent.markChanged();
-        }
+        this.context.changed = true;
     }
 }
 

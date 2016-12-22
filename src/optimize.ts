@@ -1,3 +1,4 @@
+///<reference path="optimize-interfaces.ts"/>
 import recast = require('recast');
 import removeExpressionStatements = require('./features/RemoveExpressionStatements');
 import calculateArithmetic = require('./features/CalculateArithmetic');
@@ -11,6 +12,7 @@ import removeBlock = require('./features/RemoveBlock');
 import {Feature, Phase} from "./Feature";
 import Scope = require("./Scope");
 import AstNode = require("./AstNode");
+import defaultOptions = require("./default-options");
 
 const features:Feature<any>[] = [
     removeExpressionStatements,
@@ -27,10 +29,9 @@ const features:Feature<any>[] = [
 class Walker {
     private scopeMap = new Map<Expression,Scope<any>>();
 
-    walk(expression:Expression, phase:Phase<any>):boolean {
-        const astNode = new AstNode(expression, null, null, this.scopeMap);
+    walk(context:OptimizeContext, expression:Expression, phase:Phase<any>) {
+        const astNode = new AstNode(context, expression, null, null, this.scopeMap);
         this.walkInner(astNode, phase);
-        return astNode.changed;
     }
 
     private walkInner(astNode:AstNode<any,any>, phase:Phase<any>) {
@@ -38,27 +39,27 @@ class Walker {
 
         let expression = astNode.expression;
         for (let i in expression) {
-            if (expression.hasOwnProperty(i)) {
-                let sub = expression[i];
-                if (!sub) {
-                    continue;
-                }
-                if (typeof sub.type === 'string') {
-                    this.walkInner(new AstNode(sub, astNode, expression, this.scopeMap, i), phase);
-                } else if (typeof sub.length === 'number') {
-                    for (let j = 0; j < sub.length; j++) {
-                        const obj = sub[j];
-                        if (typeof  obj.type === 'string') {
-                            const lengthBefore = sub.length;
-                            this.walkInner(new AstNode(obj, astNode, sub, this.scopeMap), phase);
-                            if (astNode.replaced) {
-                                break;
-                            }
-                            j -= lengthBefore - sub.length;
+            if (!expression.hasOwnProperty(i)) {
+                continue;
+            }
+            let sub = expression[i];
+            if (!sub) {
+                continue;
+            }
+            if (typeof sub.type === 'string') {
+                this.walkInner(new AstNode(astNode.context, sub, astNode, expression, this.scopeMap, i), phase);
+            } else if (typeof sub.length === 'number') {
+                for (let j = 0; j < sub.length; j++) {
+                    const obj = sub[j];
+                    if (typeof  obj.type === 'string') {
+                        const lengthBefore = sub.length;
+                        this.walkInner(new AstNode(astNode.context, obj, astNode, sub, this.scopeMap), phase);
+                        if (astNode.replaced) {
+                            break;
                         }
+                        j -= lengthBefore - sub.length;
                     }
                 }
-
             }
         }
 
@@ -66,24 +67,36 @@ class Walker {
     }
 }
 
-function walkFeature(feature:Feature<any>, expression:Expression):boolean {
-    let changed = false;
+function walkFeature(context:OptimizeContext, feature:Feature<any>, expression:Expression) {
     const walker = new Walker();
 
     for (let i = 0; i < feature.phases.length; i++) {
-        changed = changed || walker.walk(expression, feature.phases[i]);
+        walker.walk(context, expression, feature.phases[i]);
     }
-    return changed;
 }
 
-export = function (code:string):string {
+export = function (code:string, options?:OptimizeOptions):string {
+    let actualOptions:OptimizeOptions;
+    if (!options) {
+        actualOptions = defaultOptions;
+    } else {
+        actualOptions = {} as OptimizeOptions;
+        for (const i in defaultOptions) {
+            actualOptions[i] = options.hasOwnProperty(i) ? options[i] : defaultOptions[i];
+        }
+    }
+
     const ast:Expression = recast.parse(code).program;
 
-    let needRun = true;
-    while (needRun) {
-        needRun = false;
+    let context:OptimizeContext = {
+        options: actualOptions,
+        growth: 0,
+        changed: true
+    };
+    while (context.changed) {
+        context.changed = false;
         for (let i = 0; i < features.length; i++) {
-            needRun = needRun || walkFeature(features[i], ast);
+            walkFeature(context, features[i], ast);
         }
     }
 
