@@ -113,6 +113,11 @@
 })();
 
 (function() {
+    /a/.x = 1;;
+    console.log(1);
+})();
+
+(function() {
     {
         let j = u();
         console.log(j, j);

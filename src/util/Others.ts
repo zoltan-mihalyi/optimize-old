@@ -36,6 +36,9 @@ export function getValueInformation(e:Expression):Value {
         return e.calculatedValue;
     }
     if (isLiteralLike(e)) {
+        if (isLiteral(e) && typeof e.value === 'object' && e.value !== null) {
+            return new ObjectValue(OBJECT, {}, true);
+        }
         return new KnownValue(getLiteralLikeValue(e));
     }
     if (isArrayExpression(e)) {

@@ -117,6 +117,12 @@
 })();
 
 (function() {
+    var r = /a/;
+    r.x = 1;
+    console.log(r.x);
+})();
+
+(function() {
     {
         var i = 1;
         let j = u();
