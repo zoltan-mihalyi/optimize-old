@@ -68,7 +68,7 @@ export = function (feature:Feature<Variable>) {
         }
         variable.markUsed();
 
-        let topValue = variable.topValue().value;
+        let topValue = variable.topValue();
         if (variable.canBeModifiedInLoop(node)) {
             topValue = unknown;
         }
@@ -157,7 +157,7 @@ function handleAssignment(node:AstNode<Expression, Variable>, source:Expression,
 
     if (operator === '=') {
         if (propertyValues) {
-            newValue = topValue.value.product(propertyValues, (left, prop) => {
+            newValue = topValue.product(propertyValues, (left, prop) => {
                 if (!(left instanceof ObjectValue)) {
                     return left;
                 }
@@ -175,7 +175,7 @@ function handleAssignment(node:AstNode<Expression, Variable>, source:Expression,
         }
     } else {
         const mapper = new Function('current,value', `return current ${operator} value;`) as (x, y) => any;
-        newValue = topValue.value.product(rightValues, (left, right) => {
+        newValue = topValue.product(rightValues, (left, right) => {
             if (!(right instanceof KnownValue)) {
                 return unknown;
             }

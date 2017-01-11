@@ -55,12 +55,16 @@ class Variable {
         }
     }
 
-    topValue():LocalValue {
+    topValue():Value {
+        return this.topLocalValue().value;
+    }
+
+    private topLocalValue():LocalValue {
         return this.values[this.values.length - 1];
     }
 
     markUsed() {
-        const sources = [this.values[0].sources[0], ...this.topValue().sources];
+        const sources = [this.values[0].sources[0], ...this.topLocalValue().sources];
         for (let i = 0; i < sources.length; i++) {
             const obj = sources[i];
             if (this.usedSources.indexOf(obj) === -1) {
@@ -104,7 +108,7 @@ class Variable {
         if (!skipInit) {
             this.initialized = true;
         }
-        let topValue = this.topValue();
+        let topValue = this.topLocalValue();
         if (topValue.scope.expression === scope.expression) {
             if (replace) {
                 topValue.sources = [topValue.sources[0], expression];
