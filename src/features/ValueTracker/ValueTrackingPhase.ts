@@ -61,7 +61,6 @@ export = function (feature:Feature<Variable>) {
         }
         const myScopes = getScopes(node);
         variable.merge(myScopes);
-        const topValue = variable.topValue();
 
         if (isExpressionStatement(parentExpression)) {
             node.parent.remove();
@@ -69,11 +68,15 @@ export = function (feature:Feature<Variable>) {
         }
         variable.markUsed();
 
+        let topValue = variable.topValue().value;
+        if (variable.canBeModifiedInLoop(node)) {
+            topValue = unknown;
+        }
         if (canSubstitute(node, variable)) {
-            node.setCalculatedValue(topValue.value);
+            node.setCalculatedValue(topValue);
         }
 
-        const objResolved = topValue.value.map(val => {
+        const objResolved = topValue.map(val => {
             if (val instanceof ObjectValue) {
                 if (isMemberExpression(parentExpression)) {
                     const propertyValue = getPropertyValue(parentExpression);
@@ -152,57 +155,53 @@ function handleAssignment(node:AstNode<Expression, Variable>, source:Expression,
 
     let newValue:Value;
 
-    if (variable.canBeModifiedInLoop(node)) {
-        newValue = unknown;
-    } else {
-        if (operator === '=') {
-            if (propertyValues) {
-                newValue = topValue.value.product(propertyValues, (left, prop) => {
-                    if (!(left instanceof ObjectValue)) {
-                        return left;
-                    }
+    if (operator === '=') {
+        if (propertyValues) {
+            newValue = topValue.value.product(propertyValues, (left, prop) => {
+                if (!(left instanceof ObjectValue)) {
+                    return left;
+                }
 
-                    if (prop instanceof KnownValue) { //todo dup
-                        if (rightValues instanceof UnknownValue) {
-                            return left.set(prop.value, rightValues);
-                        }
-                        return rightValues.map(rval => left.set(prop.value, rval));
+                if (prop instanceof KnownValue) { //todo dup
+                    if (rightValues instanceof UnknownValue) {
+                        return left.set(prop.value, rightValues);
                     }
-                    return left.noKnownProperties();
+                    return rightValues.map(rval => left.set(prop.value, rval));
+                }
+                return left.noKnownProperties();
+            });
+        } else {
+            newValue = rightValues;
+        }
+    } else {
+        const mapper = new Function('current,value', `return current ${operator} value;`) as (x, y) => any;
+        newValue = topValue.value.product(rightValues, (left, right) => {
+            if (!(right instanceof KnownValue)) {
+                return unknown;
+            }
+
+            if (propertyValues) {
+                if (!(left instanceof ObjectValue)) {
+                    return left;
+                }
+                return propertyValues.map(prop => {
+                    if (prop instanceof KnownValue) {
+                        const leftResolved = left.resolve(prop.value);
+                        if (leftResolved instanceof KnownValue) {
+                            return left.set(prop.value, new KnownValue(mapper(leftResolved.value, right.value)));
+                        } else {
+                            return left.set(prop.value, unknown);
+                        }
+                    }
+                    return unknown;
                 });
             } else {
-                newValue = rightValues;
+                if (left instanceof KnownValue) {
+                    return new KnownValue(mapper(left.value, right.value));
+                }
+                return unknown;
             }
-        } else {
-            const mapper = new Function('current,value', `return current ${operator} value;`) as (x, y) => any;
-            newValue = topValue.value.product(rightValues, (left, right) => {
-                if (!(right instanceof KnownValue)) {
-                    return unknown;
-                }
-
-                if (propertyValues) {
-                    if (!(left instanceof ObjectValue)) {
-                        return left;
-                    }
-                    return propertyValues.map(prop => {
-                        if (prop instanceof KnownValue) {
-                            const leftResolved = left.resolve(prop.value);
-                            if (leftResolved instanceof KnownValue) {
-                                return left.set(prop.value, new KnownValue(mapper(leftResolved.value, right.value)));
-                            } else {
-                                return left.set(prop.value, unknown);
-                            }
-                        }
-                        return unknown;
-                    });
-                } else {
-                    if (left instanceof KnownValue) {
-                        return new KnownValue(mapper(left.value, right.value));
-                    }
-                    return unknown;
-                }
-            });
-        }
+        });
     }
 
     newValue = newValue.map(val => { //todo duplicate?

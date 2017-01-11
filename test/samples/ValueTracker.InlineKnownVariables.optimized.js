@@ -125,6 +125,15 @@
     console.log(1);
 })();
 
+(function() {
+    var a = 0;
+
+    while (u) {
+        a = 1;
+    }
+    console.log(true);
+})();
+
 var Reflect;
 console.log(Reflect);
 

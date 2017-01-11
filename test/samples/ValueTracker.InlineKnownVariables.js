@@ -131,6 +131,15 @@
     console.log(i);
 })();
 
+(function() {
+    var a = 0;
+
+    while (u) {
+        a = 1;
+    }
+    console.log(a < 2);
+})();
+
 var Reflect;
 console.log(Reflect);
 
